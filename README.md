@@ -91,8 +91,8 @@ Very likely you would want to build a **static** version of Qt,
 so here's my shortcut for MSYS2:
 
 ```
-$ mkdir <path>/qt-6.6.2-mingw64-static-build
-$ cd <path>/qt-6.6.2-mingw64-static-build
+$ mkdir <path>/qt-6.6.2-mingw64-static_build
+$ cd <path>/qt-6.6.2-mingw64-static_build
 $ ../qt-everywhere-src-6.6.2/configure \
   -prefix "<path>/qt-6.6.2-mingw64-static" \
   -platform win32-g++ -release -static -static-runtime -optimize-size \
@@ -119,16 +119,28 @@ dependencies installed.
 For MSYS2, you can use following commands:
 
 ```
-$ mkdir <path>/ddfr-build
-$ cd <path>/ddfr-build
-$ cmake -DCMAKE_PREFIX_PATH=<path-to-qt> -S <path>/ddfr-source -B .
+$ mkdir <path>/ddfr_build
+$ cd <path>/ddfr_build
+$ PATH="<path-to-qt>/bin:$PATH"
+$ cmake -DCMAKE_PREFIX_PATH=<path-to-qt> -S <path>/ddfr_source -B .
 $ cmake --build . --config MinSizeRel --parallel
 $ cmake --install . --prefix "<path>/ddfr-install"
 ```
 
+The **PATH** environment variable is prepended with binaries directory of
+the Qt installation, because `rcc` might fail to detect Qt libraries it depends on.
+
 ### Building with QtCreator
 
 If you have QtCreator, you need to set up proper *Qt Version* and *Kit*.
+
+When setting up a Kit make sure to modify **PATH** environment variable and add
+path to Qt binaries directory for `rcc` to detect Qt libraries it depends on.
+To do this add this line in the *Environment* field of Kit settings:
+
+```
+Environment: PATH=+%{Qt:QT_INSTALL_BINS}
+```
 
 Then, *Open Project* and navigate to `CMakeLists.txt` file.
 Choose build type and build application.
