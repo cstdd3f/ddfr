@@ -1,15 +1,15 @@
 // Copyright (C) 2024 Mikhail Dryuchin <cstddef@gmail.com>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,7 +30,7 @@ Item {
   signal dropped()
 
   // Private properties
-  property bool dragActive: mouseArea.drag.active
+  property bool dragActive: mouseAreaLeft.drag.active || mouseAreaRight.drag.active
 
   onDragActiveChanged: {
     if (dragActive) {
@@ -44,8 +44,8 @@ Item {
     }
   }
 
-  implicitWidth: contentPane.implicitWidth
-  implicitHeight: contentPane.implicitHeight
+  width: contentPane.width
+  height: contentPane.height
   Drag.hotSpot.x: width / 2
   Drag.hotSpot.y: height / 2
   Drag.keys: [ "dragDelegateItem" ]
@@ -54,7 +54,7 @@ Item {
     id: contentPane
 
     anchors.fill: parent
-    padding: 5; leftPadding: 5; rightPadding: 5; topPadding: 5; bottomPadding: 5
+    horizontalPadding: 5; verticalPadding: 0
     contentWidth: width - (leftPadding + rightPadding)
     background: Rectangle {
       color: palette.base
@@ -77,22 +77,36 @@ Item {
         id: arrowLabel
 
         text: "\u21DB"
-        Layout.preferredWidth: contentWidth * 2
       }
 
-      Label {
-        id: newFileNameLabel
+      CheckBox {
+        id: customNameCheckbox
+
+        checkable: true
+        checked: false
+
+        ToolTip.visible: hovered
+        ToolTip.delay: 1000
+        ToolTip.text: qsTrId("id-setCustomName")
+      }
+
+      TextEdit {
+        id: newFileNameTextEdit
+
+        enabled: customNameCheckbox.checked
 
         text: control.newFileName
-        maximumLineCount: 1
-        elide: Text.ElideRight
+        wrapMode: TextEdit.NoWrap
         Layout.fillWidth: true
+
+        color: palette.text
       }
     }
   }
 
+  // Area that covers control's originalFileNameLabel and arrowLabel
   MouseArea {
-    id: mouseArea
+    id: mouseAreaLeft
 
     property bool held: false
 
@@ -100,7 +114,32 @@ Item {
     onReleased: held = false
     onHoveredChanged: control.mouseAreaHovered(containsMouse)
 
-    anchors.fill: parent
+    height: contentPane.height
+    width: originalFileNameLabel.width + contentPane.horizontalPadding
+           + arrowLabel.width + contentPane.horizontalPadding
+
+    pressAndHoldInterval: 100
+    hoverEnabled: true
+    drag.target: parent
+    drag.axis: Drag.YAxis
+  }
+
+  // Area that covers control's newFileNameTextEdit
+  MouseArea {
+    id: mouseAreaRight
+
+    property bool held: false
+
+    enabled: !customNameCheckbox.checked
+
+    onPressAndHold: held = true
+    onReleased: held = false
+    onHoveredChanged: control.mouseAreaHovered(containsMouse)
+
+    height: contentPane.height
+    width: newFileNameTextEdit.width
+    x: mouseAreaLeft.width + contentPane.horizontalPadding + customNameCheckbox.width
+
     pressAndHoldInterval: 100
     hoverEnabled: true
     drag.target: parent
@@ -116,7 +155,7 @@ Item {
 
   states: [
     State {
-      when: mouseArea.held
+      when: mouseAreaLeft.held || mouseAreaRight.held
       PropertyChanges {
         control.z: 2 // Fly above other elements with z == 1
       }

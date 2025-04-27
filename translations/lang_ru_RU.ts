@@ -213,5 +213,11 @@
         <source>Done!</source>
         <translation>Выполнено!</translation>
     </message>
+    <message id="id-setCustomName">
+        <location filename="../src/FileListDelegate.qml" line="90"/>
+        <location filename="../src/tr-strings.cxx" line="131"/>
+        <source>Set custom name</source>
+        <translation>Задать своё имя</translation>
+    </message>
 </context>
 </TS>

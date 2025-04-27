@@ -127,5 +127,7 @@ static constexpr const char* rename = QT_TRID_NOOP("id-rename");
 static constexpr const char* folder = QT_TRID_NOOP("id-folder");
 //% "Files"
 static constexpr const char* files = QT_TRID_NOOP("id-files");
+//% "Set custom name"
+static constexpr const char* setCustomName = QT_TRID_NOOP("id-setCustomName");
 
 } // ddfr
