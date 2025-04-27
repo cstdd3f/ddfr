@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+pragma ComponentBehavior: Bound // For using 'id's inside nested components
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -84,7 +85,12 @@ Pane {
       model: control.fileListModel
 
       delegate: FileListDelegate {
+        // Defining injected into delegate properties as required properties
+        required property int index
+        required property var model
+
         onMouseAreaHovered: function(containsMouse) {
+          // From docs: The 'index' is exposed as an accessible index property
           if (containsMouse) ListView.view.currentIndex = index
         }
 
@@ -95,7 +101,7 @@ Pane {
           modelChanged()
         }
 
-        onDropped: dropHappened()
+        onDropped: control.dropHappened()
 
         width: ListView.view.width
         originalFileName: model.originalFileName
