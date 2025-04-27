@@ -48,7 +48,7 @@ Item {
   implicitHeight: contentPane.implicitHeight
   Drag.hotSpot.x: width / 2
   Drag.hotSpot.y: height / 2
-  Drag.keys: "dragDelegateItem"
+  Drag.keys: [ "dragDelegateItem" ]
 
   Pane {
     id: contentPane
@@ -67,7 +67,7 @@ Item {
       Label {
         id: originalFileNameLabel
 
-        text: originalFileName
+        text: control.originalFileName
         maximumLineCount: 1
         elide: Text.ElideRight
         Layout.preferredWidth: parent.width / 2 - arrowLabel.width
@@ -83,7 +83,7 @@ Item {
       Label {
         id: newFileNameLabel
 
-        text: newFileName
+        text: control.newFileName
         maximumLineCount: 1
         elide: Text.ElideRight
         Layout.fillWidth: true
@@ -98,7 +98,7 @@ Item {
 
     onPressAndHold: held = true
     onReleased: held = false
-    onHoveredChanged: mouseAreaHovered(containsMouse)
+    onHoveredChanged: control.mouseAreaHovered(containsMouse)
 
     anchors.fill: parent
     pressAndHoldInterval: 100
@@ -108,18 +108,17 @@ Item {
   }
 
   DropArea {
-    onEntered: function(drag) { dropAreaEntered(drag) }
+    onEntered: function(drag) { control.dropAreaEntered(drag) }
 
     anchors.fill: parent
-    keys: "dragDelegateItem"
+    keys: [ "dragDelegateItem" ]
   }
 
   states: [
     State {
       when: mouseArea.held
       PropertyChanges {
-        target: control
-        z: 2 // Fly above other elements with z == 1
+        control.z: 2 // Fly above other elements with z == 1
       }
     }
   ]
