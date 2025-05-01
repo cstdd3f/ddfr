@@ -27,13 +27,13 @@ ApplicationWindow {
 
   // Changing theme via bindings to palette
   // NOTE: Prints "Self assignment makes no sense." Ok, but why?
-  // NOTE: Now it also complains about duplicate property bindings,
-  // but they mutually exclude/disable each other on 'when' condition.
-  // So, this works, while other approaches don't.
   Binding on palette {
     when: AppSettings.theme == AppSettings.Dark
     value: DarkPalette {}
   }
+  // NOTE: Now it also complains about duplicate property bindings,
+  // but they mutually exclude/disable each other on 'when' condition.
+  // So, this works, while other approaches (Qt.binding(), functions) don't.
   Binding on palette {
     when: AppSettings.theme == AppSettings.Light
     value: LightPalette {}
@@ -177,10 +177,14 @@ ApplicationWindow {
   }
 
   Component {
-    id: fileListView
+    id: fileListViewComponent
 
     FileListView {
-      Component.onCompleted: prefixType1Check = true
+      id: fileListView
+
+      Component.onCompleted: {
+        prefixType1Check = true
+      }
 
       onModelChanged: {
         if ( appWindowStateGroup.state !== "modified" ) {
@@ -217,23 +221,27 @@ ApplicationWindow {
       renameEnabled: true
 
       Connections {
+        // NOTE: Shows stupid warning about FileListModel NOT being a QObject.
+        // FileListModel inherits from QAbstractListModel, which is ultimately a QObject.
+        // Also, there's no other way to do connect to FileListModel signals from here
+        // but to use Connections { ... }
         target: FileListModel
 
         function onLoadFileList() {
-          isLoading = true
+          fileListView.isLoading = true
         }
 
         function onFileListLoaded(ok) {
           if (ok) {
-            isLoading = false
+            fileListView.isLoading = false
             FileListModel.applyModifiers()
-            fileListModel = FileListModel
+            fileListView.fileListModel = FileListModel
           }
           else console.warn("Failed to load FileListModel!")
         }
 
         function onUnloadFileListStarted() {
-          fileListModel = undefined
+          fileListView.fileListModel = undefined
         }
 
         function onFilesRenamed() {
@@ -420,7 +428,7 @@ ApplicationWindow {
         name: "folder-opened"
         StateChangeScript {
           script: {
-            stackView.push(fileListView)
+            stackView.push(fileListViewComponent)
             FileListModel.loadFileList()
             // Hints for this state
             appWindow.currentFolderOpenedHint = 0
