@@ -416,6 +416,7 @@ ApplicationWindow {
             // Unwind stackView to initial view
             stackView.pop(null)
             FileListModel.unloadFileList()
+            FileListModel.uninstallFilters()
             // Hints for this state
             statusBarHintTimer.stop()
             AppSingleton.statusBarText = Qt.binding(

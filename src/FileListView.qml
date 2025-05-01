@@ -26,8 +26,9 @@ Pane {
   property bool isLoading: false
   property string folder
   property int numFiles
-  property bool prefixType1Check
-  property bool prefixType2Check
+  property bool removeOldPrefix: false
+  property bool prefixType1Check: true
+  property bool prefixType2Check: false
   property bool renameEnabled: false
 
   signal modelChanged()
@@ -162,6 +163,7 @@ Pane {
           onCheckedChanged: control.removeOldPrefixChecked(checked)
 
           text: qsTrId("id-filter_removeOldPrefix")
+          checked: control.removeOldPrefix
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 0; Layout.row: 0
         }

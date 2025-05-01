@@ -113,6 +113,7 @@ class FileListModel : public QAbstractListModel
     void unloadFileList();
     bool installFilter( const Filter filter );
     bool uninstallFilter( const Filter filter );
+    void uninstallFilters();
     bool installPrefix( const Prefix prefix );
     void applyModifiers();
     void applyRenaming();

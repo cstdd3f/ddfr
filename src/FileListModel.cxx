@@ -235,6 +235,11 @@ bool FileListModel::uninstallFilter( const Filter filter )
   return erased == 1;
 }
 
+void FileListModel::uninstallFilters()
+{
+  m_filtersMap.clear();
+}
+
 bool FileListModel::installPrefix( const Prefix prefix )
 {
   // See note in installFilter()
