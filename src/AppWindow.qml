@@ -65,8 +65,8 @@ ApplicationWindow {
     }
   }
 
-  width: Screen.desktopAvailableWidth * 0.5
-  height: Screen.desktopAvailableHeight * 0.5
+  width: Screen.width * 0.5
+  height: Screen.height * 0.5
   minimumWidth: 800
   minimumHeight: 600
   // Maximum is unlimited
