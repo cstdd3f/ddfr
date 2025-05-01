@@ -1,18 +1,19 @@
 // Copyright (C) 2024 Mikhail Dryuchin <cstddef@gmail.com>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+pragma ComponentBehavior: Bound // For using 'id's inside nested components
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -36,7 +37,7 @@ Pane {
   signal prefixType2Checked()
   signal renamePressed()
 
-  padding: 4; leftPadding: 4; rightPadding: 4; topPadding: 4; bottomPadding: 4
+  horizontalPadding: 4; verticalPadding: 4
 
   Pane {
     id: summaryPane
@@ -48,7 +49,7 @@ Pane {
       anchors.fill: parent
 
       Label {
-        text: qsTrId("id-folder") + ": " + folder
+        text: qsTrId("id-folder") + ": " + control.folder
         elide: Text.ElideRight
         maximumLineCount: 1
       }
@@ -56,7 +57,7 @@ Pane {
       Item { Layout.fillWidth: true }
 
       Label {
-        text: qsTrId("id-files") + ": " + numFiles
+        text: qsTrId("id-files") + ": " + control.numFiles
         elide: Text.ElideRight
         maximumLineCount: 1
       }
@@ -70,7 +71,7 @@ Pane {
       left: parent.left; right: parent.right
       top: summaryPane.bottom; bottom: paddingItem.top
     }
-    leftPadding: 0; rightPadding: 0; topPadding:  0; bottomPadding: 0
+    horizontalPadding: 0; verticalPadding: 0
     background: Rectangle { color: palette.midlight }
 
     ListView {
@@ -81,24 +82,40 @@ Pane {
       boundsBehavior: Flickable.StopAtBounds
       ScrollBar.vertical: ScrollBar {}
 
-      model: fileListModel
+      model: control.fileListModel
 
       delegate: FileListDelegate {
+        // Defining injected into delegate properties as required properties
+        required property int index
+        required property var model
+
         onMouseAreaHovered: function(containsMouse) {
+          // From docs: The 'index' is exposed as an accessible index property
           if (containsMouse) ListView.view.currentIndex = index
         }
 
         onDropAreaEntered: function(drag) {
           // Note that we are here from perspective of a target, not source!
           drag.source.dropY = y
-          fileListModel.move( drag.source.DelegateModel.itemsIndex, index )
+          control.fileListModel.move( drag.source.DelegateModel.itemsIndex, index )
           modelChanged()
         }
 
-        onDropped: dropHappened()
+        onDropped: control.dropHappened()
+
+        onCustomNameChecked: function(checked) {
+          control.fileListModel.setIsCustomName( index, checked )
+          modelChanged()
+        }
+
+        onCustomNameEdited: function(text) {
+          control.fileListModel.setNewFilename( index, text )
+          modelChanged()
+        }
 
         width: ListView.view.width
         originalFileName: model.originalFileName
+        isCustomName: model.isCustomName
         newFileName: model.newFileName
       }
 
@@ -111,7 +128,7 @@ Pane {
 
     BusyIndicator {
       anchors.centerIn: fileListView
-      running: isLoading
+      running: control.isLoading
     }
   }
 
@@ -122,7 +139,7 @@ Pane {
       left: parent.left; right: parent.right
       bottom: groupBoxRow.top
     }
-    height: control.padding
+    height: control.verticalPadding
   }
 
   Row {
@@ -142,7 +159,7 @@ Pane {
         CheckBox {
           id: removeOldPrefixCheckBox
 
-          onCheckedChanged: removeOldPrefixChecked(checked)
+          onCheckedChanged: control.removeOldPrefixChecked(checked)
 
           text: qsTrId("id-filter_removeOldPrefix")
           Layout.columnSpan: 1; Layout.rowSpan: 1
@@ -162,20 +179,20 @@ Pane {
         RadioButton {
           id: prefixType1RadioButton
 
-          onCheckedChanged: if (checked) prefixType1Checked()
+          onCheckedChanged: if (checked) control.prefixType1Checked()
 
           text: "01 - ..."
-          checked: prefixType1Check
+          checked: control.prefixType1Check
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 0; Layout.row: 0
         }
         RadioButton {
           id: prefixType2RadioButton
 
-          onCheckedChanged: if (checked) prefixType2Checked()
+          onCheckedChanged: if (checked) control.prefixType2Checked()
 
           text: "01. ..."
-          checked: prefixType2Check
+          checked: control.prefixType2Check
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 1; Layout.row: 0
         }
@@ -186,10 +203,10 @@ Pane {
   Button {
     id: renameButton
 
-    onClicked: renamePressed()
+    onClicked: control.renamePressed()
 
     anchors { right: parent.right; bottom: parent.bottom }
     text: qsTrId("id-rename")
-    enabled: renameEnabled
+    enabled: control.renameEnabled
   }
 }

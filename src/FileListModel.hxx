@@ -1,15 +1,15 @@
 // Copyright (C) 2024 Mikhail Dryuchin <cstddef@gmail.com>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,13 +24,14 @@
 #include <QQmlEngine>
 #include <QAbstractListModel>
 #include <QThread>
+#include <QString>
 
 
 namespace ddfr {
 
-// A music file descriptor
 struct File {
   std::filesystem::path originalFilePath;
+  bool isCustomName;
   std::filesystem::path newFilePath;
 };
 
@@ -76,6 +77,7 @@ class FileListModel : public QAbstractListModel
   public:
     enum class RoleNames {
       OriginalFileName = Qt::UserRole,
+      IsCustomName,
       NewFileName
     };
     Q_ENUM( RoleNames )
@@ -101,11 +103,13 @@ class FileListModel : public QAbstractListModel
 
   public: // QAbstractItemModel interface
     virtual QHash<int, QByteArray> roleNames() const override;
-    virtual int rowCount( const QModelIndex &parent ) const override;
-    virtual QVariant data( const QModelIndex &index, int role ) const override;
+    virtual int rowCount( const QModelIndex& parent ) const override;
+    virtual QVariant data( const QModelIndex& index, int role ) const override;
 
   public slots:
     bool move( int from, int to );
+    bool setIsCustomName( const int index, const bool value );
+    bool setNewFilename( const int index, const QString& value );
     void unloadFileList();
     bool installFilter( const Filter filter );
     bool uninstallFilter( const Filter filter );
@@ -138,7 +142,8 @@ class FileListModel : public QAbstractListModel
     QThread m_workerThread;
 
   private:
-    void finishLoadFileList( const bool ok );    
+    void finishLoadFileList( const bool ok );
+    void applyModifiers( File& file, const size_t index, const size_t size );
 };
 
 } // ddfr

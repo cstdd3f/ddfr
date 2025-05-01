@@ -26,6 +26,7 @@ FileListModel::FileListModel( QObject* parent )
 , m_worker( &m_folderPath, &m_fileList )
 {
   m_roleNames[static_cast<int>(RoleNames::OriginalFileName)] = "originalFileName";
+  m_roleNames[static_cast<int>(RoleNames::IsCustomName)] = "isCustomName";
   m_roleNames[static_cast<int>(RoleNames::NewFileName)] = "newFileName";
 
   // The key to understand this concept is as follows:
@@ -102,6 +103,9 @@ QVariant FileListModel::data( const QModelIndex& index, int role ) const
     case static_cast<int>(RoleNames::OriginalFileName):
       return (*it).originalFilePath.filename().string().c_str();
 
+    case static_cast<int>(RoleNames::IsCustomName):
+      return (*it).isCustomName;
+
     case static_cast<int>(RoleNames::NewFileName):
       return (*it).newFilePath.filename().string().c_str();
   }
@@ -138,6 +142,41 @@ bool FileListModel::move( int from, int to )
   *itTo = item;
 
   emit endMoveRows();
+  return true;
+}
+
+bool FileListModel::setIsCustomName( const int index, const bool value )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+  
+  auto it = m_fileList.begin();
+  std::advance( it, index );
+  
+  (*it).isCustomName = value;
+  
+  // Reverting back to original filename on custom name option uncheck
+  if ( !value )
+  {
+    applyModifiers( *it, index, fileListSize );
+  }
+  
+  return true;
+}
+
+bool FileListModel::setNewFilename( int index, const QString& value )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+
+  auto it = m_fileList.begin();
+  std::advance( it, index );
+
+  // Updating filename of the path
+  (*it).newFilePath.replace_filename( value.toStdWString() );
+
   return true;
 }
 
@@ -248,38 +287,15 @@ void FileListModel::applyModifiers()
   // and using beginResetModel() instead of dataChanged()
   emit beginResetModel();
 
-  // First, restore File.newFilePath from File.newFilePath
-  for ( auto& file : m_fileList )
-  {
-    file.newFilePath = file.originalFilePath;
-  }
-
-  // Prepare data for lambdas
+  // Prepare parameters
   size_t index = 0;
   size_t size = m_fileList.size();
-
-  // Next, apply filters to newFilePath. Order shouldn't matter.
-  for (
-    auto fileIt = m_fileList.begin();
-    fileIt != m_fileList.end();
-    ++fileIt, ++index
-  )
+  
+  for ( auto fileIt = m_fileList.begin();
+        fileIt != m_fileList.end();
+        ++fileIt, ++index )
   {
-    for ( auto& filter : m_filtersMap )
-    {
-      filter.second( (*fileIt).newFilePath, index, size );
-    }
-  }
-
-  // Next, apply prefix
-  index = 0;
-  for (
-    auto fileIt = m_fileList.begin();
-    fileIt != m_fileList.end();
-    ++fileIt, ++index
-  )
-  {
-    if ( m_prefix ) m_prefix( (*fileIt).newFilePath, index, size );
+    applyModifiers( *fileIt, index, size );
   }
 
   emit endResetModel();
@@ -313,9 +329,31 @@ void FileListModel::finishLoadFileList( const bool ok )
   emit fileListLoaded( ok );
 }
 
+void FileListModel::applyModifiers( File& file, const size_t index, const size_t size )
+{
+  // Don't modify custom name
+  if ( !file.isCustomName )
+  {
+    // Restore File.newFilePath from File.newFilePath
+    file.newFilePath = file.originalFilePath;
+    
+    // Apply filters to newFilePath. Order shouldn't matter.
+    for ( auto& filter : m_filtersMap )
+    {
+      filter.second( file.newFilePath, index, size );
+    }
+    
+    // Next, apply prefix
+    if ( m_prefix )
+    {
+      m_prefix( file.newFilePath, index, size );
+    }
+  }
+}
+
 // FileListWorker
 
-FileListWorker::FileListWorker(std::filesystem::path* folderPath, FileList* fileList)
+FileListWorker::FileListWorker( std::filesystem::path* folderPath, FileList* fileList )
 : m_folderPath( folderPath )
 , m_fileList( fileList )
 {
@@ -329,6 +367,7 @@ void FileListWorker::loadFileList()
   {
     File file;
     file.originalFilePath = dirEntry.path();
+    file.isCustomName = false;
     file.newFilePath = dirEntry.path();
 
     m_fileList->push_back( file );

@@ -1,15 +1,15 @@
 // Copyright (C) 2024 Mikhail Dryuchin <cstddef@gmail.com>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,15 +22,18 @@ Item {
   id: control
 
   property string originalFileName
+  property bool isCustomName
   property string newFileName
   property real dropY: y
 
   signal mouseAreaHovered(containsMouse: bool)
   signal dropAreaEntered(drag: DragEvent)
   signal dropped()
+  signal customNameChecked(checked: bool)
+  signal customNameEdited(text: string)
 
   // Private properties
-  property bool dragActive: mouseArea.drag.active
+  property bool dragActive: mouseAreaLeft.drag.active || mouseAreaRight.drag.active
 
   onDragActiveChanged: {
     if (dragActive) {
@@ -44,17 +47,17 @@ Item {
     }
   }
 
-  implicitWidth: contentPane.implicitWidth
-  implicitHeight: contentPane.implicitHeight
+  width: contentPane.width
+  height: contentPane.height
   Drag.hotSpot.x: width / 2
   Drag.hotSpot.y: height / 2
-  Drag.keys: "dragDelegateItem"
+  Drag.keys: [ "dragDelegateItem" ]
 
   Pane {
     id: contentPane
 
     anchors.fill: parent
-    padding: 5; leftPadding: 5; rightPadding: 5; topPadding: 5; bottomPadding: 5
+    horizontalPadding: 5; verticalPadding: 0
     contentWidth: width - (leftPadding + rightPadding)
     background: Rectangle {
       color: palette.base
@@ -67,7 +70,7 @@ Item {
       Label {
         id: originalFileNameLabel
 
-        text: originalFileName
+        text: control.originalFileName
         maximumLineCount: 1
         elide: Text.ElideRight
         Layout.preferredWidth: parent.width / 2 - arrowLabel.width
@@ -77,30 +80,73 @@ Item {
         id: arrowLabel
 
         text: "\u21DB"
-        Layout.preferredWidth: contentWidth * 2
       }
 
-      Label {
-        id: newFileNameLabel
+      CheckBox {
+        id: customNameCheckbox
 
-        text: newFileName
-        maximumLineCount: 1
-        elide: Text.ElideRight
+        onCheckedChanged: control.customNameChecked(checked)
+
+        checkable: true
+        checked: control.isCustomName
+
+        ToolTip.visible: hovered
+        ToolTip.delay: 1000
+        ToolTip.text: qsTrId("id-setCustomName")
+      }
+
+      TextEdit {
+        id: newFileNameTextEdit
+
+        onEditingFinished: control.customNameEdited(text)
+
+        enabled: customNameCheckbox.checked
+
+        text: control.newFileName
+        wrapMode: TextEdit.NoWrap
         Layout.fillWidth: true
+
+        color: palette.text
       }
     }
   }
 
+  // Area that covers control's originalFileNameLabel and arrowLabel
   MouseArea {
-    id: mouseArea
+    id: mouseAreaLeft
 
     property bool held: false
 
     onPressAndHold: held = true
     onReleased: held = false
-    onHoveredChanged: mouseAreaHovered(containsMouse)
+    onHoveredChanged: control.mouseAreaHovered(containsMouse)
 
-    anchors.fill: parent
+    height: contentPane.height
+    width: originalFileNameLabel.width + contentPane.horizontalPadding
+           + arrowLabel.width + contentPane.horizontalPadding
+
+    pressAndHoldInterval: 100
+    hoverEnabled: true
+    drag.target: parent
+    drag.axis: Drag.YAxis
+  }
+
+  // Area that covers control's newFileNameTextEdit
+  MouseArea {
+    id: mouseAreaRight
+
+    property bool held: false
+
+    enabled: !customNameCheckbox.checked
+
+    onPressAndHold: held = true
+    onReleased: held = false
+    onHoveredChanged: control.mouseAreaHovered(containsMouse)
+
+    height: contentPane.height
+    width: newFileNameTextEdit.width
+    x: mouseAreaLeft.width + contentPane.horizontalPadding + customNameCheckbox.width
+
     pressAndHoldInterval: 100
     hoverEnabled: true
     drag.target: parent
@@ -108,18 +154,17 @@ Item {
   }
 
   DropArea {
-    onEntered: function(drag) { dropAreaEntered(drag) }
+    onEntered: function(drag) { control.dropAreaEntered(drag) }
 
     anchors.fill: parent
-    keys: "dragDelegateItem"
+    keys: [ "dragDelegateItem" ]
   }
 
   states: [
     State {
-      when: mouseArea.held
+      when: mouseAreaLeft.held || mouseAreaRight.held
       PropertyChanges {
-        target: control
-        z: 2 // Fly above other elements with z == 1
+        control.z: 2 // Fly above other elements with z == 1
       }
     }
   ]
