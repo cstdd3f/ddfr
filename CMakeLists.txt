@@ -94,6 +94,7 @@ qt_add_translations( ${PROJECT_NAME}
   QM_FILES_OUTPUT_VARIABLE qm_files
   LUPDATE_OPTIONS
     -no-obsolete # Removes 'vanished' and other obsolete entries
+    -locations none # Don't create 'location' tags, they are too often change
   LRELEASE_OPTIONS
     -idbased # Required for ID-based translation functions
 )
