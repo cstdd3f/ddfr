@@ -22,12 +22,15 @@ Item {
   id: control
 
   property string originalFileName
+  property bool isCustomName
   property string newFileName
   property real dropY: y
 
   signal mouseAreaHovered(containsMouse: bool)
   signal dropAreaEntered(drag: DragEvent)
   signal dropped()
+  signal customNameChecked(checked: bool)
+  signal customNameEdited(text: string)
 
   // Private properties
   property bool dragActive: mouseAreaLeft.drag.active || mouseAreaRight.drag.active
@@ -82,8 +85,10 @@ Item {
       CheckBox {
         id: customNameCheckbox
 
+        onCheckedChanged: control.customNameChecked(checked)
+
         checkable: true
-        checked: false
+        checked: control.isCustomName
 
         ToolTip.visible: hovered
         ToolTip.delay: 1000
@@ -92,6 +97,8 @@ Item {
 
       TextEdit {
         id: newFileNameTextEdit
+
+        onEditingFinished: control.customNameEdited(text)
 
         enabled: customNameCheckbox.checked
 

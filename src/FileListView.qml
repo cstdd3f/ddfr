@@ -97,14 +97,25 @@ Pane {
         onDropAreaEntered: function(drag) {
           // Note that we are here from perspective of a target, not source!
           drag.source.dropY = y
-          fileListModel.move( drag.source.DelegateModel.itemsIndex, index )
+          control.fileListModel.move( drag.source.DelegateModel.itemsIndex, index )
           modelChanged()
         }
 
         onDropped: control.dropHappened()
 
+        onCustomNameChecked: function(checked) {
+          control.fileListModel.setIsCustomName( index, checked )
+          modelChanged()
+        }
+
+        onCustomNameEdited: function(text) {
+          control.fileListModel.setNewFilename( index, text )
+          modelChanged()
+        }
+
         width: ListView.view.width
         originalFileName: model.originalFileName
+        isCustomName: model.isCustomName
         newFileName: model.newFileName
       }
 
