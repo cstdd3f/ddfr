@@ -23,7 +23,10 @@ import ddfr
 
 ApplicationWindow {
   id: appWindow
-  title: Qt.application.name
+
+  readonly property string appName: "DragonDropFileRenamer"
+
+  title: appName
 
   // Changing theme via bindings to palette
   // NOTE: Prints "Self assignment makes no sense." Ok, but why?
@@ -117,7 +120,7 @@ ApplicationWindow {
   }
   Action {
     id: actionAbout
-    text: "&" + qsTrId("id-about") + " " + Qt.application.name + "..."
+    text: "&" + qsTrId("id-about") + " " + appWindow.appName + "..."
     onTriggered: windowLoader.sourceComponent = aboutWindow
   }
 
@@ -281,9 +284,9 @@ ApplicationWindow {
       onClosing: windowLoader.sourceComponent = undefined
 
       imagePath: "qrc:///qt/qml/ddfr/res/dragon_64x64.png"
-      title: qsTrId("id-about") + " " + Qt.application.name
-      message: Qt.application.name + " v." + Qt.application.version
-               + "\n" +  Qt.application.organization
+      title: qsTrId("id-about") + " " + appWindow.appName
+      message: appWindow.appName + " v." + Qt.application.version
+               + "\n" + "Mikhail Dryuchin <cstddef@gmail.com>"
       visible: windowLoader.visible
       palette: appWindow.palette
     }

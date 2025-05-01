@@ -23,8 +23,7 @@ int main( int argc, char *argv[] )
 {
   QGuiApplication app(argc, argv);
 
-  QCoreApplication::setOrganizationName("Mikhail Dryuchin <cstddef@gmail.com>"); // that's me :)
-  QCoreApplication::setApplicationName("DragonDropFileRenamer");
+  QCoreApplication::setApplicationName("ddfr");
   QCoreApplication::setApplicationVersion("1.0.3");
   QGuiApplication::setWindowIcon(QIcon(":/qt/qml/ddfr/res/dragon_64x64.png"));
 
