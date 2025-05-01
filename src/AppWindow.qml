@@ -403,10 +403,6 @@ ApplicationWindow {
     states: [
       State {
         name: "initial"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: qsTrId("id-statusBar_openToStart")
-        }
         StateChangeScript {
           script: {
             // Unwind stackView to initial view
@@ -414,15 +410,14 @@ ApplicationWindow {
             FileListModel.unloadFileList()
             // Hints for this state
             statusBarHintTimer.stop()
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return qsTrId("id-statusBar_openToStart") }
+            )
           }
         }
       },
       State {
         name: "folder-opened"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
-        }
         StateChangeScript {
           script: {
             stackView.push(fileListView)
@@ -430,21 +425,30 @@ ApplicationWindow {
             // Hints for this state
             appWindow.currentFolderOpenedHint = 0
             statusBarHintTimer.restart()
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+            )
           }
         }
       },
       State {
         name: "unmodified"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
+        StateChangeScript {
+          script: {
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+            )
+          }
         }
       },
       State {
         name: "modified"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
+        StateChangeScript {
+          script: {
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+            )
+          }
         }
       }
     ]
