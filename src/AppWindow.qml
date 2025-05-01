@@ -13,10 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>. 
 
-import QtCore
+pragma ComponentBehavior: Bound // For using 'id's inside nested components
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import QtQuick.Dialogs
 
 import ddfr
@@ -28,6 +27,9 @@ ApplicationWindow {
 
   // Changing theme via bindings to palette
   // NOTE: Prints "Self assignment makes no sense." Ok, but why?
+  // NOTE: Now it also complains about duplicate property bindings,
+  // but they mutually exclude/disable each other on 'when' condition.
+  // So, this works, while other approaches don't.
   Binding on palette {
     when: AppSettings.theme == AppSettings.Dark
     value: DarkPalette {}
@@ -366,7 +368,7 @@ ApplicationWindow {
   Timer {
     id: statusBarHintTimer
 
-    interval: 30000; repeat: true; onTriggered: changeFolderOpenedHint()
+    interval: 30000; repeat: true; onTriggered: appWindow.changeFolderOpenedHint()
   }
 
   // NOTE: Unfortunately, FileDialog from QtQuick.Dialogs
@@ -426,7 +428,7 @@ ApplicationWindow {
             stackView.push(fileListView)
             FileListModel.loadFileList()
             // Hints for this state
-            currentFolderOpenedHint = 0
+            appWindow.currentFolderOpenedHint = 0
             statusBarHintTimer.restart()
           }
         }
