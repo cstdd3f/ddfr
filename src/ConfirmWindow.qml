@@ -44,7 +44,7 @@ Window {
 
       Label {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: confirmText
+        text: window.confirmText
         horizontalAlignment: Text.AlignHCenter
       }
 
@@ -54,12 +54,12 @@ Window {
 
         Button {
           text: qsTrId("id-yes")
-          onClicked: { yesPressed(); window.close() }
+          onClicked: { window.yesPressed(); window.close() }
         }
 
         Button {
           text: qsTrId("id-cancel")
-          onClicked: { cancelPressed(); window.close() }
+          onClicked: { window.cancelPressed(); window.close() }
         }
       }
     }
