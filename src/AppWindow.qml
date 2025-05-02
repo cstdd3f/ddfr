@@ -189,13 +189,16 @@ ApplicationWindow {
         prefixType1Check = true
       }
 
-      onModelChanged: {
+      onModelChanged: function(from, to) {
         if ( appWindowStateGroup.state !== "modified" ) {
           appWindowStateGroup.state = "modified"
         }
-      }
 
-      onDropHappened: FileListModel.applyModifiers()
+        if ( to < from )
+          FileListModel.applyModifiersFrom(to)
+        else
+          FileListModel.applyModifiersFrom(from)
+      }
 
       onRemoveOldPrefixChecked: function(checked) {
         if ( checked ) {

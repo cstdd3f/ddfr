@@ -155,13 +155,13 @@ bool FileListModel::setIsCustomName( const int index, const bool value )
   std::advance( it, index );
   
   (*it).isCustomName = value;
-  
+
   // Reverting back to original filename on custom name option uncheck
   if ( !value )
   {
     applyModifiers( *it, index, fileListSize );
   }
-  
+
   return true;
 }
 
@@ -288,8 +288,6 @@ bool FileListModel::installPrefix( const Prefix prefix )
 
 void FileListModel::applyModifiers()
 {
-  // Considering newFilePath update a "radical change" in data
-  // and using beginResetModel() instead of dataChanged()
   emit beginResetModel();
 
   // Prepare parameters
@@ -304,6 +302,29 @@ void FileListModel::applyModifiers()
   }
 
   emit endResetModel();
+}
+
+bool FileListModel::applyModifiersFrom( const int from )
+{
+  const auto fileListSize = m_fileList.size();
+  if ( from < 0 || from > (fileListSize - 1) ) return false;
+  
+  auto it = m_fileList.begin();
+  std::advance( it, from );
+  
+  auto index = from;
+  
+  for ( auto fileIt = it;
+        fileIt != m_fileList.end();
+        ++fileIt, ++index )
+  {
+    applyModifiers( *fileIt, index, fileListSize );
+  }
+
+  auto qStart = QAbstractItemModel::createIndex(from, 0);
+  auto qEnd   = QAbstractItemModel::createIndex(fileListSize - 1, 0);
+  emit dataChanged( qStart, qEnd );
+  return true;
 }
 
 void FileListModel::applyRenaming()

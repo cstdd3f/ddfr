@@ -31,8 +31,7 @@ Pane {
   property bool prefixType2Check: false
   property bool renameEnabled: false
 
-  signal modelChanged()
-  signal dropHappened()
+  signal modelChanged(from: int, to: int)
   signal removeOldPrefixChecked(checked: bool)
   signal prefixType1Checked()
   signal prefixType2Checked()
@@ -98,20 +97,20 @@ Pane {
         onDropAreaEntered: function(drag) {
           // Note that we are here from perspective of a target, not source!
           drag.source.dropY = y
-          control.fileListModel.move( drag.source.DelegateModel.itemsIndex, index )
-          modelChanged()
+          var from = drag.source.DelegateModel.itemsIndex
+          var to = index
+          control.fileListModel.move( from, to )
+          control.modelChanged( from, to )
         }
-
-        onDropped: control.dropHappened()
 
         onCustomNameChecked: function(checked) {
           control.fileListModel.setIsCustomName( index, checked )
-          modelChanged()
+          control.modelChanged(index, index)
         }
 
         onCustomNameEdited: function(text) {
           control.fileListModel.setNewFilename( index, text )
-          modelChanged()
+          control.modelChanged(index, index)
         }
 
         width: ListView.view.width

@@ -116,6 +116,7 @@ class FileListModel : public QAbstractListModel
     void uninstallFilters();
     bool installPrefix( const Prefix prefix );
     void applyModifiers();
+    bool applyModifiersFrom( const int from );
     void applyRenaming();
 
   signals:
