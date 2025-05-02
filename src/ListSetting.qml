@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+pragma ComponentBehavior: Bound // For using 'id's inside nested components
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -46,7 +47,8 @@ Pane {
 
     Label {
       id: settingCaption
-      text: caption
+      text: control.caption
+      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       maximumLineCount: 1
       elide: Qt.ElideRight
@@ -62,7 +64,8 @@ Pane {
 
     Label {
       id: settingDescription
-      text: description
+      text: control.description
+      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 0.8 // Slightly smaller font
       wrapMode: Text.WordWrap
       maximumLineCount: 3
@@ -80,8 +83,9 @@ Pane {
 
     Label {
       id: settingLabel
-      text: settingIdx >= 0 ? settingList[settingIdx] : "Wrong settingIdx!"
+      text: control.settingIdx >= 0 ? control.settingList[control.settingIdx] : "Wrong settingIdx!"
       color: control.palette.highlight
+      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       elide: Qt.ElideRight
       Layout.alignment: Qt.AlignTop
@@ -106,7 +110,7 @@ Pane {
       var basedOnList =
         topPadding + bottomPadding
         + (control.topPadding + control.bottomPadding + settingCaption.height)
-        * settingList.length
+        * control.settingList.length
       if ( basedOnList > control.parent.height ) control.parent.height / 2
       else basedOnList
     }
@@ -118,7 +122,7 @@ Pane {
       clip: true
       boundsBehavior: Flickable.StopAtBounds
 
-      model: settingList
+      model: control.settingList
       delegate:
         Pane {
           id: settingDelegatePane
@@ -131,16 +135,17 @@ Pane {
           Label {
             id: settingDelegate
 
-            text: settingList[index]
+            text: control.settingList[settingDelegatePane.index]
 
             anchors.fill: parent
+            // NOTE: Another stupid warning that font property mising in Qt.application
             font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
             elide: Qt.ElideRight
 
             MouseArea {
               anchors.fill: parent
               onClicked: {
-                settingIdxUpdated(index)
+                control.settingIdxUpdated(settingDelegatePane.index)
                 settingPopup.close()
               }
             }
@@ -151,6 +156,7 @@ Pane {
               name: "unhovered"
               when: !settingDelegatePane.hovered
               PropertyChanges {
+                // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
                 target: settingDelegatePane
                 background.color: settingDelegatePane.palette.window
               }
@@ -159,6 +165,7 @@ Pane {
               name: "hovered"
               when: settingDelegatePane.hovered
               PropertyChanges {
+                // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
                 target: settingDelegatePane
                 background.color: settingDelegatePane.palette.alternateBase
               }
@@ -182,6 +189,7 @@ Pane {
       name: "unhovered"
       when: !control.hovered
       PropertyChanges {
+        // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
         target: control
         background.color: control.palette.window
       }
@@ -190,6 +198,7 @@ Pane {
       name: "hovered"
       when: control.hovered
       PropertyChanges {
+        // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
         target: control
         background.color: control.palette.alternateBase
       }
