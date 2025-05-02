@@ -27,6 +27,7 @@ Pane {
   // Current setting index in settingList
   required property int settingIdx
   required property string caption
+  required property int windowHeight
   property string description
 
   property alias settingCaption: settingCaption
@@ -102,7 +103,6 @@ Pane {
   Popup {
     id: settingPopup
 
-    anchors.centerIn: parent // The only available option
     width: control.width / 2
     height: {
       // Nice hack..
@@ -113,6 +113,12 @@ Pane {
         * control.settingList.length
       if ( basedOnList > control.parent.height ) control.parent.height / 2
       else basedOnList
+    }
+    x: width / 2
+    y: {
+      // This calculation takes into account popup that can spawn below window's bottom
+      if ( (control.y + height) > control.windowHeight ) control.windowHeight - (control.y + height + topPadding + bottomPadding)
+      else 0
     }
     focus: true
 
