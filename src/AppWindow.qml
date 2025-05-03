@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>. 
 
-pragma ComponentBehavior: Bound // For using 'id's inside nested components
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
