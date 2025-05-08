@@ -186,6 +186,7 @@ Pane {
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 0; Layout.row: 0
         }
+
         RadioButton {
           id: prefixType2RadioButton
 
@@ -195,6 +196,52 @@ Pane {
           checked: control.prefixType2Check
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 1; Layout.row: 0
+        }
+      }
+    }
+
+    GroupBox {
+      id: indexGroupBox
+      title: qsTrId("id-index")
+      anchors.top: parent.top; anchors.bottom: parent.bottom
+
+      GridLayout {
+        anchors.fill: parent
+        rows: 1; columns: 2
+
+        Label {
+          id: startFromLabel
+
+          text: qsTrId("id-index_startFrom")
+          maximumLineCount: 1
+          elide: Text.ElideRight
+          Layout.columnSpan: 1; Layout.rowSpan: 1
+          Layout.column: 0; Layout.row: 0
+        }
+
+        TextInput {
+          id: startFromTextInput
+
+          property int previous: 1
+
+          onAcceptableInputChanged: color = acceptableInput ? palette.text : "red";
+
+          onTextEdited: {
+            if ( acceptableInput ) previous = text
+          }
+
+          onActiveFocusChanged: {
+            if ( !acceptableInput ) text = previous
+          }
+
+          text: previous
+          // It's ok to start from 0 or any other positive number
+          validator: IntValidator { bottom: 0 }
+
+          Layout.columnSpan: 1; Layout.rowSpan: 1
+          Layout.column: 1; Layout.row: 0
+
+          color: palette.text
         }
       }
     }

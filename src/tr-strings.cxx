@@ -117,6 +117,10 @@ static constexpr const char* filters = QT_TRID_NOOP("id-filters");
 static constexpr const char* filter_removeOldPrefix = QT_TRID_NOOP("id-filter_removeOldPrefix");
 //% "Prefix"
 static constexpr const char* prefix = QT_TRID_NOOP("id-prefix");
+//% "Index"
+static constexpr const char* index = QT_TRID_NOOP("id-index");
+//% "Start from"
+static constexpr const char* index_startFrom = QT_TRID_NOOP("id-index_startFrom");
 //% "Rename"
 static constexpr const char* rename = QT_TRID_NOOP("id-rename");
 
