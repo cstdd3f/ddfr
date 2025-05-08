@@ -23,7 +23,7 @@ namespace ddfr {
 
 FileListModel::FileListModel( QObject* parent )
 : QAbstractListModel( parent )
-, m_worker( &m_folderPath, &m_fileList )
+, m_worker( &m_folderPath, &m_selectedFiles, &m_fileList )
 {
   m_roleNames[static_cast<int>(RoleNames::OriginalFileName)] = "originalFileName";
   m_roleNames[static_cast<int>(RoleNames::IsCustomName)] = "isCustomName";
@@ -71,6 +71,17 @@ void FileListModel::setFolder( const QUrl& newFolder )
     m_folderPath.assign( m_folder.toLocalFile().toUtf8().toStdString() );
     emit folderChanged();
   }
+}
+
+const QList<QUrl>& FileListModel::selectedFiles() const
+{
+  return m_selectedFiles;
+}
+
+void FileListModel::setSelectedFiles( const QList<QUrl>& selectedFiles )
+{
+  // Seems that we can only copy list. It always comes from QML as lvalue
+  m_selectedFiles = selectedFiles;
 }
 
 const int FileListModel::numFiles() const
@@ -379,8 +390,11 @@ void FileListModel::applyModifiers( File& file, const size_t index, const size_t
 
 // FileListWorker
 
-FileListWorker::FileListWorker( std::filesystem::path* folderPath, FileList* fileList )
+FileListWorker::FileListWorker( std::filesystem::path* folderPath,
+                                QList<QUrl>* selectedFiles,
+                                FileList* fileList )
 : m_folderPath( folderPath )
+, m_selectedFiles( selectedFiles )
 , m_fileList( fileList )
 {
 }
@@ -389,14 +403,30 @@ void FileListWorker::loadFileList()
 {
   using namespace std::filesystem;
 
-  for ( auto const& dirEntry : directory_iterator(*m_folderPath) )
-  {
-    File file;
-    file.originalFilePath = dirEntry.path();
-    file.isCustomName = false;
-    file.newFilePath = dirEntry.path();
+  if ( m_selectedFiles->size() > 1 )
+  { // Load selected files
+    for ( ; !m_selectedFiles->empty(); m_selectedFiles->pop_front() )
+    {
+      auto selectedFile = m_selectedFiles->front();
+      File file;
+      file.originalFilePath.assign( selectedFile.toLocalFile().toUtf8().toStdString() );
+      file.isCustomName = false;
+      file.newFilePath.assign( file.originalFilePath );
+      // Move file temporary variable
+      m_fileList->emplace_back( std::move(file) );
+    }
+  }
+  else
+  { // Load entire folder
+    for ( auto const& dirEntry : directory_iterator(*m_folderPath) )
+    {
+      File file;
+      file.originalFilePath = dirEntry.path();
+      file.isCustomName = false;
+      file.newFilePath = dirEntry.path();
 
-    m_fileList->push_back( file );
+      m_fileList->push_back( file );
+    }
   }
   emit fileListLoaded( true );
 }

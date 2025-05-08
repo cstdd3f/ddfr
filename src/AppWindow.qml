@@ -395,8 +395,13 @@ ApplicationWindow {
   FileDialog {
     id: fileDialog
 
+    // When a single file opened - loads all files from folder to list
+    // When multiple files opened - loads only selected files to list
+    fileMode: FileDialog.OpenFiles
+
     onAccepted: {
       FileListModel.folder = currentFolder
+      FileListModel.selectedFiles = selectedFiles
       if ( appWindowStateGroup.state === "initial" ) {
         appWindowStateGroup.state = "folder-opened"
         appWindowStateGroup.state = "unmodified"
