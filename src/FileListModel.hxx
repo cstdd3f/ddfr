@@ -76,6 +76,11 @@ class FileListModel : public QAbstractListModel
       WRITE setSelectedFiles
     )
 
+    Q_PROPERTY( int startIndex
+      READ startIndex
+      WRITE setStartIndex
+    )
+
     // Number of files in this model
     Q_PROPERTY( int numFiles
       READ numFiles
@@ -109,6 +114,8 @@ class FileListModel : public QAbstractListModel
     void setFolder( const QUrl& newFolder );
     const QList<QUrl>& selectedFiles() const;
     void setSelectedFiles( const QList<QUrl>& selectedFiles );
+    const int startIndex() const;
+    void setStartIndex( const int startIndex );
     const int numFiles() const;
 
   public: // QAbstractItemModel interface
@@ -148,6 +155,7 @@ class FileListModel : public QAbstractListModel
     QUrl m_folder;
     std::filesystem::path m_folderPath;
     QList<QUrl> m_selectedFiles;
+    int m_startIndex;
     FileList m_fileList;
     std::map<Filter, ModifierType> m_filtersMap;
     ModifierType m_prefix = nullptr;

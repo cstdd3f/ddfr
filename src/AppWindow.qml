@@ -186,6 +186,7 @@ ApplicationWindow {
 
       Component.onCompleted: {
         prefixType1Check = true
+        FileListModel.startIndex = 1
       }
 
       onModelChanged: function(from, to) {
@@ -216,6 +217,11 @@ ApplicationWindow {
 
       onPrefixType2Checked: {
         FileListModel.installPrefix(FileListModel.PrefixType2);
+        FileListModel.applyModifiers()
+      }
+
+      onStartIndexChange: function(index) {
+        FileListModel.startIndex = index;
         FileListModel.applyModifiers()
       }
 

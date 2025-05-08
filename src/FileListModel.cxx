@@ -73,6 +73,16 @@ void FileListModel::setFolder( const QUrl& newFolder )
   }
 }
 
+const int FileListModel::startIndex() const
+{
+  return m_startIndex;
+}
+
+void FileListModel::setStartIndex( const int startIndex )
+{
+  m_startIndex = startIndex;
+}
+
 const QList<QUrl>& FileListModel::selectedFiles() const
 {
   return m_selectedFiles;
@@ -260,11 +270,8 @@ bool FileListModel::installPrefix( const Prefix prefix )
     case Prefix::PrefixType1:
       m_prefix = []( Path& newFilePath, const size_t index, const size_t size )
       {
-        // +1 to index to start from 01
-        auto index1 = index + 1;
-
         auto filename = newFilePath.filename().wstring();
-        auto strIndex = std::to_wstring( index1 );
+        auto strIndex = std::to_wstring( index );
         auto numDigits = std::to_wstring(size).length();
         auto strLeadZeroes = std::wstring(
           numDigits - std::min(numDigits, strIndex.length()), '0'
@@ -278,11 +285,8 @@ bool FileListModel::installPrefix( const Prefix prefix )
     case Prefix::PrefixType2:
       m_prefix = []( Path& newFilePath, const size_t index, const size_t size )
       {
-        // +1 to index to start from 01
-        auto index1 = index + 1;
-
         auto filename = newFilePath.filename().wstring();
-        auto strIndex = std::to_wstring( index1 );
+        auto strIndex = std::to_wstring( index );
         auto numDigits = std::to_wstring(size).length();
         auto strLeadZeroes = std::wstring(
           numDigits - std::min(numDigits, strIndex.length()), '0'
@@ -302,7 +306,7 @@ void FileListModel::applyModifiers()
   emit beginResetModel();
 
   // Prepare parameters
-  size_t index = 0;
+  size_t index = m_startIndex;
   size_t size = m_fileList.size();
   
   for ( auto fileIt = m_fileList.begin();
@@ -323,7 +327,7 @@ bool FileListModel::applyModifiersFrom( const int from )
   auto it = m_fileList.begin();
   std::advance( it, from );
   
-  auto index = from;
+  auto index = from + m_startIndex;
   
   for ( auto fileIt = it;
         fileIt != m_fileList.end();

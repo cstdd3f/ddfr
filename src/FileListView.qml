@@ -28,12 +28,14 @@ Pane {
   property bool removeOldPrefix: false
   property bool prefixType1Check: true
   property bool prefixType2Check: false
+  property int startIndex: startFromTextInput.text
   property bool renameEnabled: false
 
   signal modelChanged(from: int, to: int)
   signal removeOldPrefixChecked(checked: bool)
   signal prefixType1Checked()
   signal prefixType2Checked()
+  signal startIndexChange(index: int)
   signal renamePressed()
 
   horizontalPadding: 4; verticalPadding: 4
@@ -227,16 +229,24 @@ Pane {
           onAcceptableInputChanged: color = acceptableInput ? palette.text : "red";
 
           onTextEdited: {
-            if ( acceptableInput ) previous = text
+            if ( acceptableInput )
+            {
+              previous = text
+              startIndexChange(text)
+            }
           }
 
           onActiveFocusChanged: {
-            if ( !acceptableInput ) text = previous
+            if ( !acceptableInput )
+            {
+              text = previous
+              startIndexChange(text)
+            }
           }
 
           text: previous
-          // It's ok to start from 0 or any other positive number
-          validator: IntValidator { bottom: 0 }
+          // It's ok to start from 0, top value of 10000 is reasonably high
+          validator: IntValidator { bottom: 0; top: 10000 }
 
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 1; Layout.row: 0
