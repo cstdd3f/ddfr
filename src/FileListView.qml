@@ -136,6 +136,7 @@ Pane {
         color: palette.highlight
         opacity: 0.1
       }
+      highlightMoveVelocity: 2000
     }
 
     BusyIndicator {
