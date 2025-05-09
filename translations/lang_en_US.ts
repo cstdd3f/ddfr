@@ -3,10 +3,6 @@
 <TS version="2.1" language="en_US">
 <context>
     <name></name>
-    <message id="id-open-folder">
-        <source>Open Folder</source>
-        <translation>Open Folder</translation>
-    </message>
     <message id="id-help">
         <source>Help</source>
         <translation>Help</translation>
@@ -38,10 +34,6 @@
     <message id="id-about">
         <source>About</source>
         <translation>About</translation>
-    </message>
-    <message id="id-noFolderOpened">
-        <source>No folder opened</source>
-        <translation>No folder opened</translation>
     </message>
     <message id="id-theme-light">
         <source>Light</source>
@@ -79,10 +71,6 @@
         <source>Russian</source>
         <translation>Russian</translation>
     </message>
-    <message id="id-close-folder">
-        <source>Close Folder</source>
-        <translation>Close Folder</translation>
-    </message>
     <message id="id-areYouSure">
         <source>Are you sure?</source>
         <translation>Are you sure?</translation>
@@ -112,8 +100,8 @@
         <translation>Rename</translation>
     </message>
     <message id="id-statusBar_openToStart">
-        <source>Open a folder to start</source>
-        <translation>Open a folder to start</translation>
+        <source>Select files to open or select a single file to open entire folder</source>
+        <translation>Select files to open or select a single file to open entire folder</translation>
     </message>
     <message id="id-close">
         <source>Close</source>
@@ -150,6 +138,30 @@
     <message id="id-index_startFrom">
         <source>Start from</source>
         <translation>Start from:</translation>
+    </message>
+    <message id="id-statusBar_startIndex">
+        <source>You can change the start index of renaming sequence</source>
+        <translation>You can change the start index of renaming sequence</translation>
+    </message>
+    <message id="id-statusBar_customNames">
+        <source>Use checkbox to customize new file name</source>
+        <translation>Use checkbox to customize new file name</translation>
+    </message>
+    <message id="id-statusBar_removeItems">
+        <source>You can exclude items from renaming with X button</source>
+        <translation>You can exclude items from renaming with X button</translation>
+    </message>
+    <message id="id-openFiles">
+        <source>Open Files</source>
+        <translation>Open Files</translation>
+    </message>
+    <message id="id-closeFiles">
+        <source>Close Files</source>
+        <translation>Close Files</translation>
+    </message>
+    <message id="id-noFilesOpened">
+        <source>No files are opened</source>
+        <translation>No files are opened</translation>
     </message>
 </context>
 </TS>

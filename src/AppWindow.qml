@@ -39,17 +39,20 @@ ApplicationWindow {
   }
 
   // Hints
-  readonly property var folderOpenedHints: [
+  readonly property var filesOpenedHints: [
     qsTrId("id-statusBar_moveItems"),
-    qsTrId("id-statusBar_filtersPrefix")
+    qsTrId("id-statusBar_filtersPrefix"),
+    qsTrId("id-statusBar_startIndex"),
+    qsTrId("id-statusBar_customNames"),
+    qsTrId("id-statusBar_removeItems")
   ]
-  property int currentFolderOpenedHint: 0
+  property int currentFilesOpenedHint: 0
 
-  function changeFolderOpenedHint() {
-    if ( (currentFolderOpenedHint + 1) >= folderOpenedHints.length ) {
-      currentFolderOpenedHint = 0
+  function changeFilesOpenedHint() {
+    if ( (currentFilesOpenedHint + 1) >= filesOpenedHints.length ) {
+      currentFilesOpenedHint = 0
     }
-    else ++currentFolderOpenedHint
+    else ++currentFilesOpenedHint
   }
 
   Component.onCompleted: {
@@ -73,12 +76,12 @@ ApplicationWindow {
   visible: true
 
   Action {
-    id: actionOpenFolder
-    text: "&" + qsTrId("id-open-folder") + "..."
+    id: actionOpenFiles
+    text: "&" + qsTrId("id-openFiles") + "..."
     shortcut: "Ctrl+O"
     onTriggered: {
       if ( appWindowStateGroup.state === "modified" ) {
-        windowLoader.sourceComponent = openFolderUnsavedWindow
+        windowLoader.sourceComponent = openFilesUnsavedWindow
       }
       else {
         fileDialog.open()
@@ -86,11 +89,11 @@ ApplicationWindow {
     }
   }
   Action {
-    id: actionCloseFolder
-    text: "&" + qsTrId("id-close-folder")
+    id: actionCloseFiles
+    text: "&" + qsTrId("id-closeFiles")
     onTriggered: {
       if ( appWindowStateGroup.state === "modified" ) {
-        windowLoader.sourceComponent = closeFolderUnsavedWindow
+        windowLoader.sourceComponent = closeFilesUnsavedWindow
       }
       else {
         if ( appWindowStateGroup.state !== "initial" ) {
@@ -124,8 +127,8 @@ ApplicationWindow {
     Menu {
       title: "&" + qsTrId("id-file")
 
-      MenuItem { action: actionOpenFolder }
-      MenuItem { action: actionCloseFolder }
+      MenuItem { action: actionOpenFiles }
+      MenuItem { action: actionCloseFiles }
       MenuSeparator {}
       MenuItem { action: actionExit }
     }
@@ -149,7 +152,7 @@ ApplicationWindow {
     id: stackView
 
     anchors.fill: parent
-    initialItem: noFolderOpenedView
+    initialItem: noFilesOpenedView
     pushEnter: Transition {
       PropertyAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
     }
@@ -165,12 +168,12 @@ ApplicationWindow {
   }
 
   Component {
-    id: noFolderOpenedView
+    id: noFilesOpenedView
 
     Pane {
       Label {
         anchors.centerIn: parent
-        text: qsTrId("id-noFolderOpened")
+        text: qsTrId("id-noFilesOpened")
       }
     }
   }
@@ -307,7 +310,7 @@ ApplicationWindow {
   }
 
   Component {
-    id: closeFolderUnsavedWindow
+    id: closeFilesUnsavedWindow
 
     ConfirmWindow {
       onClosing: windowLoader.sourceComponent = undefined
@@ -326,7 +329,7 @@ ApplicationWindow {
   }
 
   Component {
-    id: openFolderUnsavedWindow
+    id: openFilesUnsavedWindow
 
     ConfirmWindow {
       onClosing: windowLoader.sourceComponent = undefined
@@ -380,7 +383,7 @@ ApplicationWindow {
   Timer {
     id: statusBarHintTimer
 
-    interval: 30000; repeat: true; onTriggered: appWindow.changeFolderOpenedHint()
+    interval: 30000; repeat: true; onTriggered: appWindow.changeFilesOpenedHint()
   }
 
   FileDialog {
@@ -394,7 +397,7 @@ ApplicationWindow {
       FileListModel.folder = currentFolder
       FileListModel.selectedFiles = selectedFiles
       if ( appWindowStateGroup.state === "initial" ) {
-        appWindowStateGroup.state = "folder-opened"
+        appWindowStateGroup.state = "files-opened"
         appWindowStateGroup.state = "unmodified"
       }
       else {
@@ -427,16 +430,16 @@ ApplicationWindow {
         }
       },
       State {
-        name: "folder-opened"
+        name: "files-opened"
         StateChangeScript {
           script: {
             stackView.push(fileListViewComponent)
             FileListModel.loadFileList()
             // Hints for this state
-            appWindow.currentFolderOpenedHint = 0
+            appWindow.currentFilesOpenedHint = 0
             statusBarHintTimer.restart()
             AppSingleton.statusBarText = Qt.binding(
-              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
             )
           }
         }
@@ -446,7 +449,7 @@ ApplicationWindow {
         StateChangeScript {
           script: {
             AppSingleton.statusBarText = Qt.binding(
-              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
             )
           }
         }
@@ -456,7 +459,7 @@ ApplicationWindow {
         StateChangeScript {
           script: {
             AppSingleton.statusBarText = Qt.binding(
-              function() { return appWindow.folderOpenedHints[appWindow.currentFolderOpenedHint] }
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
             )
           }
         }

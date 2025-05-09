@@ -3,10 +3,6 @@
 <TS version="2.1" language="ru_RU">
 <context>
     <name></name>
-    <message id="id-open-folder">
-        <source>Open Folder</source>
-        <translation>Открыть папку</translation>
-    </message>
     <message id="id-help">
         <source>Help</source>
         <translation>Помощь</translation>
@@ -38,10 +34,6 @@
     <message id="id-about">
         <source>About</source>
         <translation>О</translation>
-    </message>
-    <message id="id-noFolderOpened">
-        <source>No folder opened</source>
-        <translation>Папка не открыта</translation>
     </message>
     <message id="id-theme-light">
         <source>Light</source>
@@ -79,10 +71,6 @@
         <source>Russian</source>
         <translation>Русский</translation>
     </message>
-    <message id="id-close-folder">
-        <source>Close Folder</source>
-        <translation>Закрыть папку</translation>
-    </message>
     <message id="id-areYouSure">
         <source>Are you sure?</source>
         <translation>Вы уверены?</translation>
@@ -112,8 +100,8 @@
         <translation>Переименовать</translation>
     </message>
     <message id="id-statusBar_openToStart">
-        <source>Open a folder to start</source>
-        <translation>Откройте папку, чтобы начать</translation>
+        <source>Select files to open or select a single file to open entire folder</source>
+        <translation>Выберите файлы, чтобы открыть их, или выберите один файл, чтобы открыть всю папку</translation>
     </message>
     <message id="id-close">
         <source>Close</source>
@@ -150,6 +138,30 @@
     <message id="id-index_startFrom">
         <source>Start from</source>
         <translation>Начать с:</translation>
+    </message>
+    <message id="id-statusBar_startIndex">
+        <source>You can change the start index of renaming sequence</source>
+        <translation>Вы можете изменить начальный индекс последовательности для переименования</translation>
+    </message>
+    <message id="id-statusBar_customNames">
+        <source>Use checkbox to customize new file name</source>
+        <translation>Используйте галку, чтобы задать своё имя нового файла</translation>
+    </message>
+    <message id="id-statusBar_removeItems">
+        <source>You can exclude items from renaming with X button</source>
+        <translation>Вы можете исключить элементы из переименования кнопкой X</translation>
+    </message>
+    <message id="id-openFiles">
+        <source>Open Files</source>
+        <translation>Открыть файлы</translation>
+    </message>
+    <message id="id-closeFiles">
+        <source>Close Files</source>
+        <translation>Закрыть файлы</translation>
+    </message>
+    <message id="id-noFilesOpened">
+        <source>No files are opened</source>
+        <translation>Нет открытых файлов</translation>
     </message>
 </context>
 </TS>
