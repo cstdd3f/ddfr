@@ -98,6 +98,8 @@ Pane {
         onDropAreaEntered: function(drag) {
           // Note that we are here from perspective of a target, not source!
           drag.source.dropY = y
+          // Using cached indices here and below,
+          // because they change after operations
           var from = drag.source.DelegateModel.itemsIndex
           var to = index
           control.fileListModel.move( from, to )
@@ -105,13 +107,15 @@ Pane {
         }
 
         onCustomNameChecked: function(checked) {
-          control.fileListModel.setIsCustomName( index, checked )
-          control.modelChanged(index, index)
+          var changeIndex = index
+          control.fileListModel.setIsCustomName( changeIndex, checked )
+          control.modelChanged( changeIndex, changeIndex )
         }
 
         onCustomNameEdited: function(text) {
-          control.fileListModel.setNewFilename( index, text )
-          control.modelChanged(index, index)
+          var changeIndex = index
+          control.fileListModel.setNewFilename( changeIndex, text )
+          control.modelChanged( changeIndex, changeIndex )
         }
 
         onRemoveClicked: {
