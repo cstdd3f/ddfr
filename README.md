@@ -14,39 +14,37 @@ Qt Quick desktop applications.
 Using DDFR is straightforward:
 
 1. Open DDFR and navigate to target directory with files
-2. Select any file in a target folder and open it to open target folder
-  > *NOTE:* See Limitations section
-  
-3. Reorder files using drag and drop method
-4. Choose filters, if needed
-  > *NOTE:* See Limitations section
-  
+2. Select any single file and open to load entire folder
+3. Select several files to open selected files only
+4. Reorder files using drag and drop method
+5. Choose filters, if needed
 5. Choose prefix
-6. Hit **Rename** button and confirm renaming operation
+6. You can change start index of renaming sequence
+7. You can use checkbox to customize new file name
+8. You can remove items from renaming with X button
+9. Hit **Rename** button and confirm renaming operation
 
 ## Limitations
 
 Program has several limitations to keep in mind:
 
-1. Selecting a file to open a folder
-  > That's a tradeoff, because Qt Quick (as of v.6.6.2) doesn't offer
-  > option to select folder out of the box. Instead, such option is offered via
-  > experimental package that pulls entire Qt Widgets (bigger executable size)
-  > and requires program redesign.
-
-2. Filter for old prefix detection will strip numbers at line start
+1. Filter for old prefix detection will strip numbers at line start
   > This filter strips a possible old prefix consisting of numbers,
   > whitespace and some symbols from the start of file name.
   > Consequently, if a filename starts with number, then this number
   > will be stripped until letters are found.
+  > To avoid this use custom name checkbox to preserve leading digits.
 
 ## How to build
 
-DDFR was originally developed with Qt v.6.2.1 and later ported to Qt v.6.6.2,
-which is the recommended version to use.
+DDFR was originally developed with Qt v.6.2.1 and currently ported to
+the following Qt version:
+
+  > Qt v.6.9.0
 
 **WARNING:** Keep in mind that latest Qt version might introduce breaking
-changes and require additional porting.
+changes and require additional porting. It's recommended to build with 
+Qt version specified above to avoid compatibility problems.
 
 ### Getting Qt
 
