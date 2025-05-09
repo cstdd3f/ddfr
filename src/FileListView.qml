@@ -81,6 +81,7 @@ Pane {
       anchors.fill: parent
       clip: true
       boundsBehavior: Flickable.StopAtBounds
+      boundsMovement: Flickable.StopAtBounds
       ScrollBar.vertical: ScrollBar {}
 
       model: control.fileListModel
