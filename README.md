@@ -91,20 +91,18 @@ Very likely you would want to build a **static** version of Qt,
 so here's my shortcut for MSYS2:
 
 ```
-$ mkdir <path>/qt-6.6.2-mingw64-static_build
-$ cd <path>/qt-6.6.2-mingw64-static_build
-$ ../qt-everywhere-src-6.6.2/configure \
-  -prefix "<path>/qt-6.6.2-mingw64-static" \
+$ mkdir <path>/qt-6.9.0-mingw64-static_build
+$ cd <path>/qt-6.9.0-mingw64-static_build
+$ ../qt-everywhere-src-6.9.0/configure \
+  -prefix "<path>/qt-6.9.0-mingw64-static" \
   -platform win32-g++ -release -static -static-runtime -optimize-size \
   -feature-relocatable -no-pch -opengl desktop \
   -skip qtwebengine -nomake tests -nomake examples \
-  -qt-pcre -qt-zlib -qt-freetype -qt-harfbuzz -qt-doubleconversion -qt-libb2 \
-  -qt-libmd4c -qt-libpng -qt-libjpeg -qt-tiff -qt-webp \
-  -no-feature-zstd -no-feature-mng -no-feature-jasper -no-feature-system-assimp \
-  -no-feature-qt3d-system-assimp -no-feature-system-doubleconversion \
-  -no-feature-system-libb2 -no-feature-system-textmarkdownreader \
-  -no-feature-brotli -opensource -confirm-license \
-  -- -Wno-dev --fresh
+  -qt-doubleconversion -qt-pcre -qt-zlib -qt-freetype -qt-harfbuzz \
+  -qt-libpng -qt-libjpeg -qt-sqlite -qt-qt3d-assimp -qt-tiff -qt-webp -qt-openxr \
+  -no-feature-system-libb2 -no-feature-zstd -no-feature-mng  \
+  -no-feature-jasper -no-feature-brotli \
+  -opensource -confirm-license -- -Wno-dev --fresh
 $ cmake --build . --parallel
 $ cmake --install .
 ```
