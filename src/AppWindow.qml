@@ -33,9 +33,6 @@ ApplicationWindow {
     when: AppSettings.theme == AppSettings.Dark
     value: DarkPalette {}
   }
-  // NOTE: Now it also complains about duplicate property bindings,
-  // but they mutually exclude/disable each other on 'when' condition.
-  // So, this works, while other approaches (Qt.binding(), functions) don't.
   Binding on palette {
     when: AppSettings.theme == AppSettings.Light
     value: LightPalette {}
@@ -232,10 +229,6 @@ ApplicationWindow {
       renameEnabled: true
 
       Connections {
-        // NOTE: Shows stupid warning about FileListModel NOT being a QObject.
-        // FileListModel inherits from QAbstractListModel, which is ultimately a QObject.
-        // Also, there's no other way to do connect to FileListModel signals from here
-        // but to use Connections { ... }
         target: FileListModel
 
         function onLoadFileList() {
@@ -390,14 +383,6 @@ ApplicationWindow {
     interval: 30000; repeat: true; onTriggered: appWindow.changeFolderOpenedHint()
   }
 
-  // NOTE: Unfortunately, FileDialog from QtQuick.Dialogs
-  // had major interface changes in Qt6 and lost option
-  // to select folder..
-  // That option was moved into FolderDialog and into
-  // experimental Qt.labs.platform package, which pulls
-  // entire Qt Widgets in order to work.
-  // That's why FileDialog is used to select any single file
-  // from target directory. Then its directory is used.
   FileDialog {
     id: fileDialog
 

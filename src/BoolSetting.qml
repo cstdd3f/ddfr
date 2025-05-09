@@ -41,7 +41,6 @@ Pane {
     Label {
       id: settingCaption
       text: control.caption
-      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       maximumLineCount: 1
       elide: Qt.ElideRight
@@ -53,7 +52,6 @@ Pane {
     Label {
       id: settingDescription
       text: control.description
-      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 0.8 // Slightly smaller font
       wrapMode: Text.WordWrap
       maximumLineCount: 3

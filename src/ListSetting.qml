@@ -48,7 +48,6 @@ Pane {
     Label {
       id: settingCaption
       text: control.caption
-      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       maximumLineCount: 1
       elide: Qt.ElideRight
@@ -65,7 +64,6 @@ Pane {
     Label {
       id: settingDescription
       text: control.description
-      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 0.8 // Slightly smaller font
       wrapMode: Text.WordWrap
       maximumLineCount: 3
@@ -85,7 +83,6 @@ Pane {
       id: settingLabel
       text: control.settingIdx >= 0 ? control.settingList[control.settingIdx] : "Wrong settingIdx!"
       color: control.palette.highlight
-      // NOTE: Another stupid warning that font property mising in Qt.application
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       elide: Qt.ElideRight
       Layout.alignment: Qt.AlignTop
@@ -143,7 +140,6 @@ Pane {
             text: control.settingList[settingDelegatePane.index]
 
             anchors.fill: parent
-            // NOTE: Another stupid warning that font property mising in Qt.application
             font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
             elide: Qt.ElideRight
 
@@ -161,7 +157,7 @@ Pane {
               name: "unhovered"
               when: !settingDelegatePane.hovered
               PropertyChanges {
-                // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
+                // NOTE: Using 'id' form just doesn't work for no reason, so keep using 'target'
                 target: settingDelegatePane
                 background.color: settingDelegatePane.palette.window
               }
@@ -170,7 +166,7 @@ Pane {
               name: "hovered"
               when: settingDelegatePane.hovered
               PropertyChanges {
-                // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
+                // NOTE: Using 'id' form just doesn't work for no reason, so keep using 'target'
                 target: settingDelegatePane
                 background.color: settingDelegatePane.palette.alternateBase
               }
@@ -194,7 +190,7 @@ Pane {
       name: "unhovered"
       when: !control.hovered
       PropertyChanges {
-        // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
+        // NOTE: Using 'id' form just doesn't work for no reason, so keep using 'target'
         target: control
         background.color: control.palette.window
       }
@@ -203,7 +199,7 @@ Pane {
       name: "hovered"
       when: control.hovered
       PropertyChanges {
-        // NOTE: Again, using 'id' form just doesn't work for no reason, so keep using 'target'
+        // NOTE: Using 'id' form just doesn't work for no reason, so keep using 'target'
         target: control
         background.color: control.palette.alternateBase
       }
