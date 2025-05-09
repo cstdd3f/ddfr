@@ -24,7 +24,7 @@ int main( int argc, char *argv[] )
   QGuiApplication app(argc, argv);
 
   QCoreApplication::setApplicationName("ddfr");
-  QCoreApplication::setApplicationVersion("1.0.3");
+  QCoreApplication::setApplicationVersion("1.2.8");
   QGuiApplication::setWindowIcon(QIcon(":/qt/qml/ddfr/res/dragon_64x64.png"));
 
   QThread::currentThread()->setObjectName("MainThread");
