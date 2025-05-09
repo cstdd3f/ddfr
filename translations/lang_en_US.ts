@@ -143,5 +143,13 @@
         <source>Set custom name</source>
         <translation>Set custom name</translation>
     </message>
+    <message id="id-index">
+        <source>Index</source>
+        <translation>Index</translation>
+    </message>
+    <message id="id-index_startFrom">
+        <source>Start from</source>
+        <translation>Start from:</translation>
+    </message>
 </context>
 </TS>

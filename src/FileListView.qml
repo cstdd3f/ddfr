@@ -28,12 +28,14 @@ Pane {
   property bool removeOldPrefix: false
   property bool prefixType1Check: true
   property bool prefixType2Check: false
+  property int startIndex: startFromTextInput.text
   property bool renameEnabled: false
 
   signal modelChanged(from: int, to: int)
   signal removeOldPrefixChecked(checked: bool)
   signal prefixType1Checked()
   signal prefixType2Checked()
+  signal startIndexChange(index: int)
   signal renamePressed()
 
   horizontalPadding: 4; verticalPadding: 4
@@ -112,6 +114,12 @@ Pane {
           control.modelChanged(index, index)
         }
 
+        onRemoveClicked: {
+          var removeIndex = index
+          control.fileListModel.removeFile( removeIndex )
+          control.modelChanged( removeIndex, removeIndex )
+        }
+
         width: ListView.view.width
         originalFileName: model.originalFileName
         isCustomName: model.isCustomName
@@ -186,6 +194,7 @@ Pane {
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 0; Layout.row: 0
         }
+
         RadioButton {
           id: prefixType2RadioButton
 
@@ -195,6 +204,60 @@ Pane {
           checked: control.prefixType2Check
           Layout.columnSpan: 1; Layout.rowSpan: 1
           Layout.column: 1; Layout.row: 0
+        }
+      }
+    }
+
+    GroupBox {
+      id: indexGroupBox
+      title: qsTrId("id-index")
+      anchors.top: parent.top; anchors.bottom: parent.bottom
+
+      GridLayout {
+        anchors.fill: parent
+        rows: 1; columns: 2
+
+        Label {
+          id: startFromLabel
+
+          text: qsTrId("id-index_startFrom")
+          maximumLineCount: 1
+          elide: Text.ElideRight
+          Layout.columnSpan: 1; Layout.rowSpan: 1
+          Layout.column: 0; Layout.row: 0
+        }
+
+        TextInput {
+          id: startFromTextInput
+
+          property int previous: 1
+
+          onAcceptableInputChanged: color = acceptableInput ? palette.text : "red";
+
+          onTextEdited: {
+            if ( acceptableInput )
+            {
+              previous = text
+              startIndexChange(text)
+            }
+          }
+
+          onActiveFocusChanged: {
+            if ( !acceptableInput )
+            {
+              text = previous
+              startIndexChange(text)
+            }
+          }
+
+          text: previous
+          // It's ok to start from 0, top value of 10000 is reasonably high
+          validator: IntValidator { bottom: 0; top: 10000 }
+
+          Layout.columnSpan: 1; Layout.rowSpan: 1
+          Layout.column: 1; Layout.row: 0
+
+          color: palette.text
         }
       }
     }

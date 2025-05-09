@@ -31,6 +31,7 @@ Item {
   signal dropped()
   signal customNameChecked(checked: bool)
   signal customNameEdited(text: string)
+  signal removeClicked()
 
   // Private properties
   property bool dragActive: mouseAreaLeft.drag.active || mouseAreaRight.drag.active
@@ -107,6 +108,16 @@ Item {
         Layout.fillWidth: true
 
         color: palette.text
+      }
+
+      Button {
+        id: removeButton
+
+        onClicked: removeClicked()
+
+        text: "X"
+        font.bold: true
+        Layout.preferredWidth: implicitContentWidth + horizontalPadding * 2
       }
     }
   }

@@ -42,7 +42,9 @@ class FileListWorker : public QObject
   Q_OBJECT
 
   public:
-    explicit FileListWorker( std::filesystem::path* folderPath, FileList* fileList );
+    explicit FileListWorker( std::filesystem::path* folderPath,
+                             QList<QUrl>* selectedFiles,
+                             FileList* fileList );
 
   public slots:
     void loadFileList();
@@ -52,6 +54,7 @@ class FileListWorker : public QObject
 
   private:
     std::filesystem::path* m_folderPath;
+    QList<QUrl>* m_selectedFiles;
     FileList* m_fileList;
 };
 
@@ -66,6 +69,16 @@ class FileListModel : public QAbstractListModel
       READ folder
       WRITE setFolder
       NOTIFY folderChanged
+    )
+    
+    Q_PROPERTY( QList<QUrl> selectedFiles
+      READ selectedFiles
+      WRITE setSelectedFiles
+    )
+
+    Q_PROPERTY( int startIndex
+      READ startIndex
+      WRITE setStartIndex
     )
 
     // Number of files in this model
@@ -99,6 +112,10 @@ class FileListModel : public QAbstractListModel
 
     const QUrl& folder() const;
     void setFolder( const QUrl& newFolder );
+    const QList<QUrl>& selectedFiles() const;
+    void setSelectedFiles( const QList<QUrl>& selectedFiles );
+    const int startIndex() const;
+    void setStartIndex( const int startIndex );
     const int numFiles() const;
 
   public: // QAbstractItemModel interface
@@ -110,6 +127,7 @@ class FileListModel : public QAbstractListModel
     bool move( int from, int to );
     bool setIsCustomName( const int index, const bool value );
     bool setNewFilename( const int index, const QString& value );
+    bool removeFile( const int index );
     void unloadFileList();
     bool installFilter( const Filter filter );
     bool uninstallFilter( const Filter filter );
@@ -137,6 +155,8 @@ class FileListModel : public QAbstractListModel
   private: // Logic implementation members
     QUrl m_folder;
     std::filesystem::path m_folderPath;
+    QList<QUrl> m_selectedFiles;
+    int m_startIndex;
     FileList m_fileList;
     std::map<Filter, ModifierType> m_filtersMap;
     ModifierType m_prefix = nullptr;

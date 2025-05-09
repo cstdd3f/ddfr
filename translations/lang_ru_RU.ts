@@ -143,5 +143,13 @@
         <source>Set custom name</source>
         <translation>Задать своё имя</translation>
     </message>
+    <message id="id-index">
+        <source>Index</source>
+        <translation>Индекс</translation>
+    </message>
+    <message id="id-index_startFrom">
+        <source>Start from</source>
+        <translation>Начать с:</translation>
+    </message>
 </context>
 </TS>
