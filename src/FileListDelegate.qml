@@ -96,7 +96,7 @@ Item {
         ToolTip.text: qsTrId("id-setCustomName")
       }
 
-      TextEdit {
+      TextInput {
         id: newFileNameTextEdit
 
         onEditingFinished: control.customNameEdited(text)
