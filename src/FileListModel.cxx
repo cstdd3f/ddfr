@@ -447,8 +447,8 @@ void FileListWorker::loadFileList()
       file.originalFilePath = dirEntry.path();
       file.isCustomName = false;
       file.newFilePath = dirEntry.path();
-
-      m_fileList->push_back( file );
+      // Move file temporary variable
+      m_fileList->emplace_back( std::move(file) );
     }
   }
   emit fileListLoaded( true );
