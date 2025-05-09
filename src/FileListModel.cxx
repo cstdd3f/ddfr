@@ -23,9 +23,10 @@ namespace ddfr {
 
 FileListModel::FileListModel( QObject* parent )
 : QAbstractListModel( parent )
-, m_worker( &m_folderPath, &m_fileList )
+, m_worker( &m_folderPath, &m_selectedFiles, &m_fileList )
 {
   m_roleNames[static_cast<int>(RoleNames::OriginalFileName)] = "originalFileName";
+  m_roleNames[static_cast<int>(RoleNames::IsCustomName)] = "isCustomName";
   m_roleNames[static_cast<int>(RoleNames::NewFileName)] = "newFileName";
 
   // The key to understand this concept is as follows:
@@ -72,6 +73,27 @@ void FileListModel::setFolder( const QUrl& newFolder )
   }
 }
 
+const int FileListModel::startIndex() const
+{
+  return m_startIndex;
+}
+
+void FileListModel::setStartIndex( const int startIndex )
+{
+  m_startIndex = startIndex;
+}
+
+const QList<QUrl>& FileListModel::selectedFiles() const
+{
+  return m_selectedFiles;
+}
+
+void FileListModel::setSelectedFiles( const QList<QUrl>& selectedFiles )
+{
+  // Seems that we can only copy list. It always comes from QML as lvalue
+  m_selectedFiles = selectedFiles;
+}
+
 const int FileListModel::numFiles() const
 {
   return m_fileList.size();
@@ -101,6 +123,9 @@ QVariant FileListModel::data( const QModelIndex& index, int role ) const
   {
     case static_cast<int>(RoleNames::OriginalFileName):
       return (*it).originalFilePath.filename().string().c_str();
+
+    case static_cast<int>(RoleNames::IsCustomName):
+      return (*it).isCustomName;
 
     case static_cast<int>(RoleNames::NewFileName):
       return (*it).newFilePath.filename().string().c_str();
@@ -138,6 +163,60 @@ bool FileListModel::move( int from, int to )
   *itTo = item;
 
   emit endMoveRows();
+  return true;
+}
+
+bool FileListModel::setIsCustomName( const int index, const bool value )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+  
+  auto it = m_fileList.begin();
+  std::advance( it, index );
+  
+  (*it).isCustomName = value;
+
+  // Reverting back to original filename on custom name option uncheck
+  if ( !value )
+  {
+    applyModifiers( *it, index, fileListSize );
+  }
+
+  return true;
+}
+
+bool FileListModel::setNewFilename( int index, const QString& value )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+
+  auto it = m_fileList.begin();
+  std::advance( it, index );
+
+  // Updating filename of the path
+  (*it).newFilePath.replace_filename( value.toStdWString() );
+
+  return true;
+}
+
+bool FileListModel::removeFile( const int index )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+  
+  auto dummy = QModelIndex();
+  
+  emit beginRemoveRows( dummy, index, index);
+  
+  auto it = m_fileList.begin();
+  std::advance(it, index);
+  
+  m_fileList.erase(it);
+  
+  emit endRemoveRows();
   return true;
 }
 
@@ -196,6 +275,11 @@ bool FileListModel::uninstallFilter( const Filter filter )
   return erased == 1;
 }
 
+void FileListModel::uninstallFilters()
+{
+  m_filtersMap.clear();
+}
+
 bool FileListModel::installPrefix( const Prefix prefix )
 {
   // See note in installFilter()
@@ -205,11 +289,8 @@ bool FileListModel::installPrefix( const Prefix prefix )
     case Prefix::PrefixType1:
       m_prefix = []( Path& newFilePath, const size_t index, const size_t size )
       {
-        // +1 to index to start from 01
-        auto index1 = index + 1;
-
         auto filename = newFilePath.filename().wstring();
-        auto strIndex = std::to_wstring( index1 );
+        auto strIndex = std::to_wstring( index );
         auto numDigits = std::to_wstring(size).length();
         auto strLeadZeroes = std::wstring(
           numDigits - std::min(numDigits, strIndex.length()), '0'
@@ -223,11 +304,8 @@ bool FileListModel::installPrefix( const Prefix prefix )
     case Prefix::PrefixType2:
       m_prefix = []( Path& newFilePath, const size_t index, const size_t size )
       {
-        // +1 to index to start from 01
-        auto index1 = index + 1;
-
         auto filename = newFilePath.filename().wstring();
-        auto strIndex = std::to_wstring( index1 );
+        auto strIndex = std::to_wstring( index );
         auto numDigits = std::to_wstring(size).length();
         auto strLeadZeroes = std::wstring(
           numDigits - std::min(numDigits, strIndex.length()), '0'
@@ -244,45 +322,44 @@ bool FileListModel::installPrefix( const Prefix prefix )
 
 void FileListModel::applyModifiers()
 {
-  // Considering newFilePath update a "radical change" in data
-  // and using beginResetModel() instead of dataChanged()
   emit beginResetModel();
 
-  // First, restore File.newFilePath from File.newFilePath
-  for ( auto& file : m_fileList )
+  // Prepare parameters
+  size_t index = m_startIndex;
+  size_t size = m_fileList.size() + m_startIndex - 1;
+  
+  for ( auto fileIt = m_fileList.begin();
+        fileIt != m_fileList.end();
+        ++fileIt, ++index )
   {
-    file.newFilePath = file.originalFilePath;
-  }
-
-  // Prepare data for lambdas
-  size_t index = 0;
-  size_t size = m_fileList.size();
-
-  // Next, apply filters to newFilePath. Order shouldn't matter.
-  for (
-    auto fileIt = m_fileList.begin();
-    fileIt != m_fileList.end();
-    ++fileIt, ++index
-  )
-  {
-    for ( auto& filter : m_filtersMap )
-    {
-      filter.second( (*fileIt).newFilePath, index, size );
-    }
-  }
-
-  // Next, apply prefix
-  index = 0;
-  for (
-    auto fileIt = m_fileList.begin();
-    fileIt != m_fileList.end();
-    ++fileIt, ++index
-  )
-  {
-    if ( m_prefix ) m_prefix( (*fileIt).newFilePath, index, size );
+    applyModifiers( *fileIt, index, size );
   }
 
   emit endResetModel();
+}
+
+bool FileListModel::applyModifiersFrom( const int from )
+{
+  const auto fileListSize = m_fileList.size();
+  if ( from < 0 || from > (fileListSize - 1) ) return false;
+  
+  auto it = m_fileList.begin();
+  std::advance( it, from );
+  
+  auto index = from + m_startIndex;
+  auto size = fileListSize + m_startIndex - 1;
+  
+  for ( auto fileIt = it;
+        fileIt != m_fileList.end();
+        ++fileIt, ++index )
+  {
+    applyModifiers( *fileIt, index, size );
+  }
+
+  auto qStart = QAbstractItemModel::createIndex(from, 0);
+  auto qEnd   = QAbstractItemModel::createIndex(fileListSize - 1, 0);
+  emit dataChanged( qStart, qEnd );
+  return true;
 }
 
 void FileListModel::applyRenaming()
@@ -313,10 +390,35 @@ void FileListModel::finishLoadFileList( const bool ok )
   emit fileListLoaded( ok );
 }
 
+void FileListModel::applyModifiers( File& file, const size_t index, const size_t size )
+{
+  // Don't modify custom name
+  if ( !file.isCustomName )
+  {
+    // Restore File.newFilePath from File.newFilePath
+    file.newFilePath = file.originalFilePath;
+    
+    // Apply filters to newFilePath. Order shouldn't matter.
+    for ( auto& filter : m_filtersMap )
+    {
+      filter.second( file.newFilePath, index, size );
+    }
+    
+    // Next, apply prefix
+    if ( m_prefix )
+    {
+      m_prefix( file.newFilePath, index, size );
+    }
+  }
+}
+
 // FileListWorker
 
-FileListWorker::FileListWorker(std::filesystem::path* folderPath, FileList* fileList)
+FileListWorker::FileListWorker( std::filesystem::path* folderPath,
+                                QList<QUrl>* selectedFiles,
+                                FileList* fileList )
 : m_folderPath( folderPath )
+, m_selectedFiles( selectedFiles )
 , m_fileList( fileList )
 {
 }
@@ -325,13 +427,30 @@ void FileListWorker::loadFileList()
 {
   using namespace std::filesystem;
 
-  for ( auto const& dirEntry : directory_iterator(*m_folderPath) )
-  {
-    File file;
-    file.originalFilePath = dirEntry.path();
-    file.newFilePath = dirEntry.path();
-
-    m_fileList->push_back( file );
+  if ( m_selectedFiles->size() > 1 )
+  { // Load selected files
+    for ( ; !m_selectedFiles->empty(); m_selectedFiles->pop_front() )
+    {
+      auto selectedFile = m_selectedFiles->front();
+      File file;
+      file.originalFilePath.assign( selectedFile.toLocalFile().toUtf8().toStdString() );
+      file.isCustomName = false;
+      file.newFilePath.assign( file.originalFilePath );
+      // Move file temporary variable
+      m_fileList->emplace_back( std::move(file) );
+    }
+  }
+  else
+  { // Load entire folder
+    for ( auto const& dirEntry : directory_iterator(*m_folderPath) )
+    {
+      File file;
+      file.originalFilePath = dirEntry.path();
+      file.isCustomName = false;
+      file.newFilePath = dirEntry.path();
+      // Move file temporary variable
+      m_fileList->emplace_back( std::move(file) );
+    }
   }
   emit fileListLoaded( true );
 }

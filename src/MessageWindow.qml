@@ -43,12 +43,12 @@ Window {
 
       Image {
         anchors.horizontalCenter: parent.horizontalCenter
-        source: imagePath
+        source: window.imagePath
       }
 
       Label {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: message
+        text: window.message
         horizontalAlignment: Text.AlignHCenter
       }
 

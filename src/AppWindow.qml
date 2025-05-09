@@ -13,10 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>. 
 
-import QtCore
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import QtQuick.Dialogs
 
 import ddfr
@@ -24,7 +22,10 @@ import ddfr
 
 ApplicationWindow {
   id: appWindow
-  title: Qt.application.name
+
+  readonly property string appName: "DragonDropFileRenamer"
+
+  title: appName
 
   // Changing theme via bindings to palette
   // NOTE: Prints "Self assignment makes no sense." Ok, but why?
@@ -38,17 +39,20 @@ ApplicationWindow {
   }
 
   // Hints
-  readonly property var folderOpenedHints: [
+  readonly property var filesOpenedHints: [
     qsTrId("id-statusBar_moveItems"),
-    qsTrId("id-statusBar_filtersPrefix")
+    qsTrId("id-statusBar_filtersPrefix"),
+    qsTrId("id-statusBar_startIndex"),
+    qsTrId("id-statusBar_customNames"),
+    qsTrId("id-statusBar_removeItems")
   ]
-  property int currentFolderOpenedHint: 0
+  property int currentFilesOpenedHint: 0
 
-  function changeFolderOpenedHint() {
-    if ( (currentFolderOpenedHint + 1) >= folderOpenedHints.length ) {
-      currentFolderOpenedHint = 0
+  function changeFilesOpenedHint() {
+    if ( (currentFilesOpenedHint + 1) >= filesOpenedHints.length ) {
+      currentFilesOpenedHint = 0
     }
-    else ++currentFolderOpenedHint
+    else ++currentFilesOpenedHint
   }
 
   Component.onCompleted: {
@@ -63,8 +67,8 @@ ApplicationWindow {
     }
   }
 
-  width: Screen.desktopAvailableWidth * 0.5
-  height: Screen.desktopAvailableHeight * 0.5
+  width: Screen.width * 0.5
+  height: Screen.height * 0.5
   minimumWidth: 800
   minimumHeight: 600
   // Maximum is unlimited
@@ -72,12 +76,12 @@ ApplicationWindow {
   visible: true
 
   Action {
-    id: actionOpenFolder
-    text: "&" + qsTrId("id-open-folder") + "..."
+    id: actionOpenFiles
+    text: "&" + qsTrId("id-openFiles") + "..."
     shortcut: "Ctrl+O"
     onTriggered: {
       if ( appWindowStateGroup.state === "modified" ) {
-        windowLoader.sourceComponent = openFolderUnsavedWindow
+        windowLoader.sourceComponent = openFilesUnsavedWindow
       }
       else {
         fileDialog.open()
@@ -85,11 +89,11 @@ ApplicationWindow {
     }
   }
   Action {
-    id: actionCloseFolder
-    text: "&" + qsTrId("id-close-folder")
+    id: actionCloseFiles
+    text: "&" + qsTrId("id-closeFiles")
     onTriggered: {
       if ( appWindowStateGroup.state === "modified" ) {
-        windowLoader.sourceComponent = closeFolderUnsavedWindow
+        windowLoader.sourceComponent = closeFilesUnsavedWindow
       }
       else {
         if ( appWindowStateGroup.state !== "initial" ) {
@@ -115,7 +119,7 @@ ApplicationWindow {
   }
   Action {
     id: actionAbout
-    text: "&" + qsTrId("id-about") + " " + Qt.application.name + "..."
+    text: "&" + qsTrId("id-about") + " " + appWindow.appName + "..."
     onTriggered: windowLoader.sourceComponent = aboutWindow
   }
 
@@ -123,8 +127,8 @@ ApplicationWindow {
     Menu {
       title: "&" + qsTrId("id-file")
 
-      MenuItem { action: actionOpenFolder }
-      MenuItem { action: actionCloseFolder }
+      MenuItem { action: actionOpenFiles }
+      MenuItem { action: actionCloseFiles }
       MenuSeparator {}
       MenuItem { action: actionExit }
     }
@@ -148,7 +152,7 @@ ApplicationWindow {
     id: stackView
 
     anchors.fill: parent
-    initialItem: noFolderOpenedView
+    initialItem: noFilesOpenedView
     pushEnter: Transition {
       PropertyAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
     }
@@ -164,29 +168,37 @@ ApplicationWindow {
   }
 
   Component {
-    id: noFolderOpenedView
+    id: noFilesOpenedView
 
     Pane {
       Label {
         anchors.centerIn: parent
-        text: qsTrId("id-noFolderOpened")
+        text: qsTrId("id-noFilesOpened")
       }
     }
   }
 
   Component {
-    id: fileListView
+    id: fileListViewComponent
 
     FileListView {
-      Component.onCompleted: prefixType1Check = true
+      id: fileListView
 
-      onModelChanged: {
+      Component.onCompleted: {
+        prefixType1Check = true
+        FileListModel.startIndex = 1
+      }
+
+      onModelChanged: function(from, to) {
         if ( appWindowStateGroup.state !== "modified" ) {
           appWindowStateGroup.state = "modified"
         }
-      }
 
-      onDropHappened: FileListModel.applyModifiers()
+        if ( to < from )
+          FileListModel.applyModifiersFrom(to)
+        else
+          FileListModel.applyModifiersFrom(from)
+      }
 
       onRemoveOldPrefixChecked: function(checked) {
         if ( checked ) {
@@ -208,6 +220,11 @@ ApplicationWindow {
         FileListModel.applyModifiers()
       }
 
+      onStartIndexChange: function(index) {
+        FileListModel.startIndex = index;
+        FileListModel.applyModifiers()
+      }
+
       onRenamePressed: windowLoader.sourceComponent = confirmRenameWindow
 
       folder: AppSingleton.localPathFromUrl(FileListModel.folder)
@@ -218,20 +235,20 @@ ApplicationWindow {
         target: FileListModel
 
         function onLoadFileList() {
-          isLoading = true
+          fileListView.isLoading = true
         }
 
         function onFileListLoaded(ok) {
           if (ok) {
-            isLoading = false
+            fileListView.isLoading = false
             FileListModel.applyModifiers()
-            fileListModel = FileListModel
+            fileListView.fileListModel = FileListModel
           }
           else console.warn("Failed to load FileListModel!")
         }
 
         function onUnloadFileListStarted() {
-          fileListModel = undefined
+          fileListView.fileListModel = undefined
         }
 
         function onFilesRenamed() {
@@ -271,9 +288,9 @@ ApplicationWindow {
       onClosing: windowLoader.sourceComponent = undefined
 
       imagePath: "qrc:///qt/qml/ddfr/res/dragon_64x64.png"
-      title: qsTrId("id-about") + " " + Qt.application.name
-      message: Qt.application.name + " v." + Qt.application.version
-               + "\n" +  Qt.application.organization
+      title: qsTrId("id-about") + " " + appWindow.appName
+      message: appWindow.appName + " v." + Qt.application.version
+               + "\n" + "Mikhail Dryuchin <cstddef@gmail.com>"
       visible: windowLoader.visible
       palette: appWindow.palette
     }
@@ -293,7 +310,7 @@ ApplicationWindow {
   }
 
   Component {
-    id: closeFolderUnsavedWindow
+    id: closeFilesUnsavedWindow
 
     ConfirmWindow {
       onClosing: windowLoader.sourceComponent = undefined
@@ -312,7 +329,7 @@ ApplicationWindow {
   }
 
   Component {
-    id: openFolderUnsavedWindow
+    id: openFilesUnsavedWindow
 
     ConfirmWindow {
       onClosing: windowLoader.sourceComponent = undefined
@@ -366,24 +383,21 @@ ApplicationWindow {
   Timer {
     id: statusBarHintTimer
 
-    interval: 30000; repeat: true; onTriggered: changeFolderOpenedHint()
+    interval: 30000; repeat: true; onTriggered: appWindow.changeFilesOpenedHint()
   }
 
-  // NOTE: Unfortunately, FileDialog from QtQuick.Dialogs
-  // had major interface changes in Qt6 and lost option
-  // to select folder..
-  // That option was moved into FolderDialog and into
-  // experimental Qt.labs.platform package, which pulls
-  // entire Qt Widgets in order to work.
-  // That's why FileDialog is used to select any single file
-  // from target directory. Then its directory is used.
   FileDialog {
     id: fileDialog
 
+    // When a single file opened - loads all files from folder to list
+    // When multiple files opened - loads only selected files to list
+    fileMode: FileDialog.OpenFiles
+
     onAccepted: {
       FileListModel.folder = currentFolder
+      FileListModel.selectedFiles = selectedFiles
       if ( appWindowStateGroup.state === "initial" ) {
-        appWindowStateGroup.state = "folder-opened"
+        appWindowStateGroup.state = "files-opened"
         appWindowStateGroup.state = "unmodified"
       }
       else {
@@ -401,48 +415,53 @@ ApplicationWindow {
     states: [
       State {
         name: "initial"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: qsTrId("id-statusBar_openToStart")
-        }
         StateChangeScript {
           script: {
             // Unwind stackView to initial view
             stackView.pop(null)
             FileListModel.unloadFileList()
+            FileListModel.uninstallFilters()
             // Hints for this state
             statusBarHintTimer.stop()
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return qsTrId("id-statusBar_openToStart") }
+            )
           }
         }
       },
       State {
-        name: "folder-opened"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
-        }
+        name: "files-opened"
         StateChangeScript {
           script: {
-            stackView.push(fileListView)
+            stackView.push(fileListViewComponent)
             FileListModel.loadFileList()
             // Hints for this state
-            currentFolderOpenedHint = 0
+            appWindow.currentFilesOpenedHint = 0
             statusBarHintTimer.restart()
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
+            )
           }
         }
       },
       State {
         name: "unmodified"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
+        StateChangeScript {
+          script: {
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
+            )
+          }
         }
       },
       State {
         name: "modified"
-        PropertyChanges {
-          target: AppSingleton
-          statusBarText: folderOpenedHints[currentFolderOpenedHint]
+        StateChangeScript {
+          script: {
+            AppSingleton.statusBarText = Qt.binding(
+              function() { return appWindow.filesOpenedHints[appWindow.currentFilesOpenedHint] }
+            )
+          }
         }
       }
     ]

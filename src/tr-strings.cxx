@@ -34,10 +34,10 @@ namespace ddfr {
 
 //% "File"
 static constexpr const char* file = QT_TRID_NOOP("id-file");
-//% "Open Folder"
-static constexpr const char* openFolder = QT_TRID_NOOP("id-open-folder");
-//% "Close Folder"
-static constexpr const char* closeFolder = QT_TRID_NOOP("id-close-folder");
+//% "Open Files"
+static constexpr const char* openFiles = QT_TRID_NOOP("id-openFiles");
+//% "Close Files"
+static constexpr const char* closeFiles = QT_TRID_NOOP("id-closeFiles");
 //% "Exit"
 static constexpr const char* exit = QT_TRID_NOOP("id-exit");
 //% "Edit"
@@ -50,12 +50,18 @@ static constexpr const char* help = QT_TRID_NOOP("id-help");
 static constexpr const char* about = QT_TRID_NOOP("id-about");
 
 // Status bar
-//% "Open a folder to start"
+//% "Select files to open or select a single file to open entire folder"
 static constexpr const char* statusBar_openToStart = QT_TRID_NOOP("id-statusBar_openToStart");
 //% "Drag and drop to move items"
 static constexpr const char* statusBar_moveItems = QT_TRID_NOOP("id-statusBar_moveItems");
 //% "You can use file name filters and choose prefix for files to rename"
 static constexpr const char* statusBar_filtersPrefix = QT_TRID_NOOP("id-statusBar_filtersPrefix");
+//% "You can change the start index of renaming sequence"
+static constexpr const char* statusBar_startIndex = QT_TRID_NOOP("id-statusBar_startIndex");
+//% "Use checkbox to customize new file name"
+static constexpr const char* statusBar_customNames = QT_TRID_NOOP("id-statusBar_customNames");
+//% "You can exclude items from renaming with X button"
+static constexpr const char* statusBar_removeItems = QT_TRID_NOOP("id-statusBar_removeItems");
 
 // SettingsWindow
 
@@ -106,8 +112,8 @@ static constexpr const char* areYouSure = QT_TRID_NOOP("id-areYouSure");
 
 // InitialView
 
-//% "No folder opened"
-static constexpr const char* noFolderOpened = QT_TRID_NOOP("id-noFolderOpened");
+//% "No files are opened"
+static constexpr const char* noFilesOpened = QT_TRID_NOOP("id-noFilesOpened");
 
 // FileListView
 
@@ -117,6 +123,10 @@ static constexpr const char* filters = QT_TRID_NOOP("id-filters");
 static constexpr const char* filter_removeOldPrefix = QT_TRID_NOOP("id-filter_removeOldPrefix");
 //% "Prefix"
 static constexpr const char* prefix = QT_TRID_NOOP("id-prefix");
+//% "Index"
+static constexpr const char* index = QT_TRID_NOOP("id-index");
+//% "Start from"
+static constexpr const char* index_startFrom = QT_TRID_NOOP("id-index_startFrom");
 //% "Rename"
 static constexpr const char* rename = QT_TRID_NOOP("id-rename");
 
@@ -127,5 +137,7 @@ static constexpr const char* rename = QT_TRID_NOOP("id-rename");
 static constexpr const char* folder = QT_TRID_NOOP("id-folder");
 //% "Files"
 static constexpr const char* files = QT_TRID_NOOP("id-files");
+//% "Set custom name"
+static constexpr const char* setCustomName = QT_TRID_NOOP("id-setCustomName");
 
 } // ddfr

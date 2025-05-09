@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Load Qt6 packages for CMake
-find_package( Qt6 6.5
+find_package( Qt6 6.8
   COMPONENTS
     Gui Quick QuickControls2 LinguistTools
   REQUIRED
@@ -23,7 +23,7 @@ set(ts_dir  "translations")
 set(res_dir "res")
 
 ## Set up QML project
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES 6.8)
 qt_add_executable( ${PROJECT_NAME}
   ${src_dir}/main.cxx
   ${src_dir}/tr-strings.cxx
@@ -94,6 +94,7 @@ qt_add_translations( ${PROJECT_NAME}
   QM_FILES_OUTPUT_VARIABLE qm_files
   LUPDATE_OPTIONS
     -no-obsolete # Removes 'vanished' and other obsolete entries
+    -locations none # Don't create 'location' tags, they are too often change
   LRELEASE_OPTIONS
     -idbased # Required for ID-based translation functions
 )

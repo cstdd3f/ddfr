@@ -19,6 +19,8 @@ import QtQuick.Layouts
 
 
 Pane {
+  id: control
+
   // A bool setting which is typically set externally as a binding.
   // This binding propagates into settingSwitch
   required property bool setting
@@ -38,7 +40,7 @@ Pane {
 
     Label {
       id: settingCaption
-      text: caption
+      text: control.caption
       font.pointSize: Qt.application.font.pixelSize * 1.1 // Slightly bigger font
       maximumLineCount: 1
       elide: Qt.ElideRight
@@ -49,7 +51,7 @@ Pane {
 
     Label {
       id: settingDescription
-      text: description
+      text: control.description
       font.pointSize: Qt.application.font.pixelSize * 0.8 // Slightly smaller font
       wrapMode: Text.WordWrap
       maximumLineCount: 3
@@ -62,8 +64,8 @@ Pane {
 
     Switch {
       id: settingSwitch
-      onToggled: switchToggled(checked)
-      checked: setting
+      onToggled: control.switchToggled(checked)
+      checked: control.setting
       Layout.alignment: Qt.AlignTop
       Layout.columnSpan: 1; Layout.rowSpan: 2
       Layout.column: 1; Layout.row: 0

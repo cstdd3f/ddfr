@@ -20,6 +20,8 @@ import QtQuick.Controls
 import ddfr
 
 Window {
+  id: control
+
   onClosing: AppSettings.save()
 
   // Based on contents, considering different localizations applied
@@ -33,73 +35,79 @@ Window {
     anchors.fill: parent
     leftPadding: 0; rightPadding: 0; topPadding: 0; bottomPadding: 0
 
-    Column {
+    ScrollView {
       anchors.fill: parent
 
-      ListSetting {
-        id: settingLanguage
-        anchors { left: parent.left; right: parent.right }
+      Column {
+        anchors.fill: parent
 
-        settingList: [ qsTrId("id-language-english"), qsTrId("id-language-russian") ]
-        settingIdx: {
-          switch (AppSettings.language) {
-            case AppSettings.English: 0
-              break
-            case AppSettings.Russian: 1
-              break
+        ListSetting {
+          id: settingLanguage
+          anchors { left: parent.left; right: parent.right }
+
+          settingList: [ qsTrId("id-language-english"), qsTrId("id-language-russian") ]
+          settingIdx: {
+            switch (AppSettings.language) {
+              case AppSettings.English: 0
+                break
+              case AppSettings.Russian: 1
+                break
+            }
+          }
+          caption: qsTrId("id-language")
+          windowHeight: control.height
+
+          onSettingIdxUpdated: function(newSettingIdx) {
+            switch (newSettingIdx) {
+              case 0: AppSettings.language = AppSettings.English
+                break
+              case 1: AppSettings.language = AppSettings.Russian
+                break
+            }
           }
         }
-        caption: qsTrId("id-language")
 
-        onSettingIdxUpdated: function(newSettingIdx) {
-          switch (newSettingIdx) {
-            case 0: AppSettings.language = AppSettings.English
-              break
-            case 1: AppSettings.language = AppSettings.Russian
-              break
+        ListSetting {
+          id: settingTheme
+          anchors { left: parent.left; right: parent.right }
+
+          settingList: [ qsTrId("id-theme-light"), qsTrId("id-theme-dark") ]
+          settingIdx: {
+            switch (AppSettings.theme) {
+              case AppSettings.Light: 0
+                break
+              case AppSettings.Dark: 1
+                break
+            }
+          }
+          caption: qsTrId("id-theme")
+          description: qsTrId("id-theme-desc")
+          windowHeight: control.height
+
+          onSettingIdxUpdated: function(newSettingIdx) {
+            switch (newSettingIdx) {
+              case 0: AppSettings.theme = AppSettings.Light
+                break
+              case 1: AppSettings.theme = AppSettings.Dark
+                break
+            }
           }
         }
-      }
 
-      ListSetting {
-        id: settingTheme
-        anchors { left: parent.left; right: parent.right }
-
-        settingList: [ qsTrId("id-theme-light"), qsTrId("id-theme-dark") ]
-        settingIdx: {
-          switch (AppSettings.theme) {
-            case AppSettings.Light: 0
-              break
-            case AppSettings.Dark: 1
-              break
+        BoolSetting {
+          id: settingPortableMode
+          anchors {
+            left: parent.left
+            right: parent.right
           }
-        }
-        caption: qsTrId("id-theme")
-        description: qsTrId("id-theme-desc")
 
-        onSettingIdxUpdated: function(newSettingIdx) {
-          switch (newSettingIdx) {
-            case 0: AppSettings.theme = AppSettings.Light
-              break
-            case 1: AppSettings.theme = AppSettings.Dark
-              break
+          setting: AppSettings.portableMode
+          caption: qsTrId("id-portableMode")
+          description: qsTrId("id-portableMode-desc")
+
+          onSwitchToggled: function(checked) {
+            AppSettings.portableMode = checked
           }
-        }
-      }
-
-      BoolSetting {
-        id: settingPortableMode
-        anchors {
-          left: parent.left
-          right: parent.right
-        }
-
-        setting: AppSettings.portableMode
-        caption: qsTrId("id-portableMode")
-        description: qsTrId("id-portableMode-desc")
-
-        onSwitchToggled: function(checked) {
-          AppSettings.portableMode = checked
         }
       }
     }
