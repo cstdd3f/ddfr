@@ -105,6 +105,7 @@ Item {
 
         text: control.newFileName
         wrapMode: TextEdit.NoWrap
+        clip: true
         Layout.fillWidth: true
 
         color: palette.text
