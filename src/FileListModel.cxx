@@ -326,7 +326,7 @@ void FileListModel::applyModifiers()
 
   // Prepare parameters
   size_t index = m_startIndex;
-  size_t size = m_fileList.size();
+  size_t size = m_fileList.size() + m_startIndex - 1;
   
   for ( auto fileIt = m_fileList.begin();
         fileIt != m_fileList.end();
@@ -347,12 +347,13 @@ bool FileListModel::applyModifiersFrom( const int from )
   std::advance( it, from );
   
   auto index = from + m_startIndex;
+  auto size = fileListSize + m_startIndex - 1;
   
   for ( auto fileIt = it;
         fileIt != m_fileList.end();
         ++fileIt, ++index )
   {
-    applyModifiers( *fileIt, index, fileListSize );
+    applyModifiers( *fileIt, index, size );
   }
 
   auto qStart = QAbstractItemModel::createIndex(from, 0);
