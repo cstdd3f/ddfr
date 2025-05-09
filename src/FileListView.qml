@@ -114,6 +114,12 @@ Pane {
           control.modelChanged(index, index)
         }
 
+        onRemoveClicked: {
+          var removeIndex = index
+          control.fileListModel.removeFile( removeIndex )
+          control.modelChanged( removeIndex, removeIndex )
+        }
+
         width: ListView.view.width
         originalFileName: model.originalFileName
         isCustomName: model.isCustomName

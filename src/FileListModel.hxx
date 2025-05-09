@@ -127,6 +127,7 @@ class FileListModel : public QAbstractListModel
     bool move( int from, int to );
     bool setIsCustomName( const int index, const bool value );
     bool setNewFilename( const int index, const QString& value );
+    bool removeFile( const int index );
     void unloadFileList();
     bool installFilter( const Filter filter );
     bool uninstallFilter( const Filter filter );

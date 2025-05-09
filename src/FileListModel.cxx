@@ -201,6 +201,25 @@ bool FileListModel::setNewFilename( int index, const QString& value )
   return true;
 }
 
+bool FileListModel::removeFile( const int index )
+{
+  // Allowed indices are within index range of existing items
+  const auto fileListSize = m_fileList.size();
+  if ( index < 0 || index > (fileListSize - 1) ) return false;
+  
+  auto dummy = QModelIndex();
+  
+  emit beginRemoveRows( dummy, index, index);
+  
+  auto it = m_fileList.begin();
+  std::advance(it, index);
+  
+  m_fileList.erase(it);
+  
+  emit endRemoveRows();
+  return true;
+}
+
 void FileListModel::unloadFileList()
 {
   const auto size = m_fileList.size();
